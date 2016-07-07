@@ -41,3 +41,5 @@ SERVERNAME = "Dark_horizons_3"
 # log out all active web browsing sessions. Game web client sessions
 # may survive.
 SECRET_KEY = '%-?S"7FKtgvhCVDzfMR8uN;=,_"L5iwAGY#*|j3n'
+
+INSTALLED_APPS = INSTALLED_APPS + ("gamedb", )

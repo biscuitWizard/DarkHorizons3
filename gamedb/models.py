@@ -3,6 +3,9 @@ from __future__ import unicode_literals
 from django.db import models
 
 # Create your models here.
+class ItemCategory(models.Model):
+    db_name = models.CharField(max_length=32)
+
 class Item(models.Model):
     db_category = models.ForeignKey(ItemCategory)
     db_name = models.CharField(max_length=64)
@@ -13,5 +16,4 @@ class Item(models.Model):
     db_black_market_index = models.IntegerField()
     db_tags = models.CharField(max_length=512)
 
-class ItemCategory(models.Model):
-    db_name = models.CharField(max_length=32)
+
