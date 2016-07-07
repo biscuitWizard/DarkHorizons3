@@ -19,3 +19,7 @@ class Room(DefaultRoom):
     properties and methods available on all Objects.
     """
     pass
+
+class ResourceNodeRoom(Room):
+    def at_object_creation(self):
+        self.db.resource_nodes = None

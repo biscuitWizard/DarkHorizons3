@@ -11,6 +11,8 @@ inheritance.
 
 """
 from evennia import DefaultObject
+from gamedb.models import Item
+from world.models import ItemStack
 
 class Object(DefaultObject):
     """
@@ -159,4 +161,31 @@ class Object(DefaultObject):
                                  object speaks
 
      """
-    pass
+    def at_object_creation(self):
+        self.db.inventory = list()
+
+    def add_item(self, item_name, quantity=1):
+        try:
+            resolved_item = Item.objects.filter(db_name__icontains=item_name)[0]
+        except IndexError:
+            return
+
+        existingStack = next(item for item in self.db.items if item.item_id == resolved_item.id) or None
+        if existingStack is None:
+            newStack = ItemStack(resolved_item.id, quantity)
+            self.db.items.append(newStack)
+        else:
+            existingStack.quantity += quantity
+
+
+    def add_item(self, item_id, quantity=1):
+        pass
+
+    def add_item(self, item_stack_instance, quantity=1):
+        pass
+
+    def remove_item(self, item_name, quantity=1):
+        pass
+
+    def remove_item(self, item_id, quantity=1):
+        pass
