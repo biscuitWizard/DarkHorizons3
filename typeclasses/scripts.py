@@ -89,9 +89,3 @@ class Script(DefaultScript):
 
     """
     pass
-
-class ResourceNode(Script):
-    pass
-
-class ResourceNodeOutput(Script):
-    pass
