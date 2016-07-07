@@ -20,6 +20,6 @@ class Room(DefaultRoom):
     """
     pass
 
-class ResourceNodeRoom(Room):
+class DebugRoom(Room):
     def at_object_creation(self):
-        self.db.resource_nodes = None
+        self.cmdset.add("")

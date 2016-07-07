@@ -11,8 +11,6 @@ inheritance.
 
 """
 from evennia import DefaultObject
-from gamedb.models import Item
-from world.models import ItemStack
 
 class Object(DefaultObject):
     """
@@ -161,44 +159,3 @@ class Object(DefaultObject):
                                  object speaks
 
      """
-    def at_object_creation(self):
-        self.db.inventory = list()
-
-    def add_item(self, item_name, quantity=1):
-        try:
-            resolved_item = Item.objects.filter(db_name__icontains=item_name)[0]
-        except IndexError:
-            return
-
-            existing_stack = next(item for item in self.db.items if item.item_id == resolved_item.id) or None
-        if existing_stack is None:
-            new_stack = ItemStack(resolved_item.id, quantity)
-            self.db.items.append(new_stack)
-        else:
-            existing_stack.quantity += quantity
-
-
-    def add_item(self, item_id, quantity=1):
-        existing_stack = next(item for item in self.db.items if item.item_id == item_id) or None
-        if existing_stack is None:
-            new_stack = ItemStack(item_id, quantity)
-            self.db.items.append(new_stack)
-        else:
-            existing_stack.quantity += quantity
-
-    def remove_item(self, item_name, quantity=1):
-        try:
-            resolved_item = Item.objects.filter(db_name__icontains=item_name)[0]
-        except IndexError:
-            return
-
-        existing_stack = next(item for item in self.db.items if item.item_id == resolved_item.id) or None
-        if existing_stack is None:
-            return
-        else:
-            existing_stack.quantity -= quantity
-            if existing_stack.quantity <= 0:
-                self.db.items.remove(existing_stack)
-
-    def remove_item(self, item_id, quantity=1):
-        pass
