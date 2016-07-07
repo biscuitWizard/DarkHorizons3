@@ -2,14 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="33340762-2107-46e5-85ae-3ffbb70a7804" name="Default" comment="">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/profiles_settings.xml" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/.idea/vcs.xml" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/world/models" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/gamedb/models.py" afterPath="$PROJECT_DIR$/gamedb/models.py" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/typeclasses/objects.py" afterPath="$PROJECT_DIR$/typeclasses/objects.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/typeclasses/rooms.py" afterPath="$PROJECT_DIR$/typeclasses/rooms.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/typeclasses/scripts.py" afterPath="$PROJECT_DIR$/typeclasses/scripts.py" />
     </list>
     <ignored path="DarkHorizons3.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -95,8 +88,8 @@
       <file leaf-file-name="objects.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/typeclasses/objects.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="586">
-              <caret line="164" column="34" selection-start-line="164" selection-start-column="34" selection-end-line="164" selection-end-column="34" />
+            <state relative-caret-position="535">
+              <caret line="175" column="42" selection-start-line="175" selection-start-column="42" selection-end-line="175" selection-end-column="42" />
               <folding>
                 <element signature="e#366#399#0" expanded="true" />
               </folding>
@@ -519,8 +512,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/typeclasses/objects.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="586">
-          <caret line="164" column="34" selection-start-line="164" selection-start-column="34" selection-end-line="164" selection-end-column="34" />
+        <state relative-caret-position="535">
+          <caret line="175" column="42" selection-start-line="175" selection-start-column="42" selection-end-line="175" selection-end-column="42" />
           <folding>
             <element signature="e#366#399#0" expanded="true" />
           </folding>
