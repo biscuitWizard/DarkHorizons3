@@ -31,6 +31,9 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
+  <PropertyGroup>
+    <StartupObject>Aurora.Program</StartupObject>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="Nancy, Version=1.4.2.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Nancy.1.4.3\lib\net40\Nancy.dll</HintPath>
@@ -42,6 +45,10 @@
     </Reference>
     <Reference Include="Nancy.Hosting.Self, Version=1.4.1.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Nancy.Hosting.Self.1.4.1\lib\net40\Nancy.Hosting.Self.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="NDesk.Options, Version=0.2.1.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\NDesk.Options.0.2.1\lib\NDesk.Options.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Newtonsoft.Json, Version=9.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
@@ -94,11 +101,8 @@
     <Compile Include="Typeclasses\DefaultObject.cs" />
     <Compile Include="Typeclasses\DefaultExit.cs" />
     <Compile Include="Typeclasses\DefaultScript.cs" />
-    <Compile Include="Typeclasses\Factories\DefaultObjectFactory.cs" />
     <Compile Include="Typeclasses\DefaultPlayer.cs" />
     <Compile Include="Typeclasses\DefaultRoom.cs" />
-    <Compile Include="Typeclasses\IDBHandler.cs" />
-    <Compile Include="Typeclasses\DefaultDBHandler.cs" />
     <Compile Include="Typeclasses\Factories\IObjectFactory.cs" />
     <Compile Include="Typeclasses\TypedObject.cs" />
   </ItemGroup>
