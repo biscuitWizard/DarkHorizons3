@@ -16,4 +16,27 @@ class Item(models.Model):
     db_black_market_index = models.IntegerField()
     db_tags = models.CharField(max_length=512)
 
+class Trait(models.Model):
+    db_name = models.CharField(max_length=32)
 
+class Race(models.Model):
+    db_name = models.CharField(max_length=32)
+
+class RaceTrait(models.Model):
+    db_race = models.ForeignKey(Race)
+    db_trait = models.ForeignKey(Trait)
+    db_value = models.IntegerField()
+
+class Class(models.Model):
+    db_name = models.CharField(max_length=32)
+    db_is_force_sensitive = models.BooleanField()
+
+class ClassTraits(models.Model):
+    db_class = models.ForeignKey(Class)
+    db_trait = models.ForeignKey(Trait)
+    db_value = models.IntegerField()
+
+class TraitWordlevel(models.Model):
+    db_trait = models.ForeignKey(Trait)
+    db_ordinal = models.IntegerField()
+    db_value = models.CharField(max_length=32)

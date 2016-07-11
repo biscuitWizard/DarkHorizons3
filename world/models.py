@@ -1,13 +1,16 @@
 class ItemStack:
-    def __init__(self, item_id, quantity):
-        self.item_id = item_id
-        self.quantity = quantity
-        self.custom_name = None
-
     def __init__(self, item_id, quantity, custom_name):
         self.item_id = item_id
         self.quantity = quantity
         self.custom_name = custom_name
+
+    @classmethod
+    def from_itemid(cls, item_id, quantity):
+        return cls(item_id, quantity, None)
+
+    @classmethod
+    def from_customstack(cls, item_id, quantity, custom_name):
+        return cls(item_id, quantity, custom_name)
 
 class ResourceNode:
     def __init__(self):

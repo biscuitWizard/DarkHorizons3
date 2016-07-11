@@ -32,7 +32,7 @@ class Character(DefaultCharacter):
 
     """
     def at_object_creation(self):
-        self.db.inventory = list()
+        self.db.items = list()
 
     def add_item(self, item_name, quantity=1):
         try:
@@ -49,9 +49,12 @@ class Character(DefaultCharacter):
 
 
     def add_item(self, item_id, quantity=1):
-        existing_stack = next(item for item in self.db.items if item.item_id == item_id) or None
+        try:
+            existing_stack = next(item for item in self.db.items if item.item_id == item_id)
+        except StopIteration:
+            existing_stack = None
         if existing_stack is None:
-            new_stack = ItemStack(item_id, quantity)
+            new_stack = ItemStack.from_itemid(item_id, quantity)
             self.db.items.append(new_stack)
         else:
             existing_stack.quantity += quantity
