@@ -89,3 +89,22 @@ class Script(DefaultScript):
 
     """
     pass
+
+class EngagementScript(DefaultScript):
+    key = "engagement_script"
+    desc = "Used during an active fight between two characters"
+    start_delay = True
+    interval = 5
+    repeats = 1
+
+    aggressor = None  # Who initiated the fight
+    defender = None  # Who's the target
+    location = None  # Where the fight is happening
+
+    def at_repeat(self):
+        "Called once after the initial wait delay."
+        print 'Script called!!!'
+        self.defender.msg('[GAME] You waited too long. Boom! Combat over.')
+        self.aggressor.msg('[GAME] Your prey took too look to response. Combat expired.')
+        self.stop()
+
