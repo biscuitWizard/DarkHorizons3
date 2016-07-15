@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # Welcome to Evennia!
 
 This is your game directory, set up to let you start with
@@ -40,6 +39,3 @@ https://github.com/evennia/evennia/wiki.
 
 Enjoy!
 =======
-# Aurora
-Aurora C# Mush Server
->>>>>>> cebb6188d6a76451eff934393690c2ceaa0eb1e0

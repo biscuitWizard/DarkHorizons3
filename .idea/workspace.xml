@@ -2,53 +2,10 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="33340762-2107-46e5-85ae-3ffbb70a7804" name="Default" comment="">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/Aurora.Base/Aurora.Base.csproj" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/Aurora.Base/Properties/AssemblyInfo.cs" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/Aurora.Base/Typeclasses/Character.cs" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/Aurora.Base/Typeclasses/Exit.cs" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/Aurora.Base/Typeclasses/Object.cs" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/Aurora.Base/Typeclasses/Player.cs" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/Aurora.Base/Typeclasses/Room.cs" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/Aurora.sln" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/Aurora/App.config" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/Aurora/Aurora.csproj" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/Aurora/DateTimeExensions.cs" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/Aurora/Models/ChannelDataObject.cs" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/Aurora/Models/ObjectDataObject.cs" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/Aurora/Models/PlayerDataObject.cs" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/Aurora/Models/ScriptDataObject.cs" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/Aurora/NonPersistentAttribute.cs" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/Aurora/Program.cs" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/Aurora/Properties/AssemblyInfo.cs" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/Aurora/Typeclasses/DefaultChannel.cs" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/Aurora/Typeclasses/DefaultCharacter.cs" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/Aurora/Typeclasses/DefaultDBHandler.cs" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/Aurora/Typeclasses/DefaultExit.cs" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/Aurora/Typeclasses/DefaultObject.cs" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/Aurora/Typeclasses/DefaultPlayer.cs" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/Aurora/Typeclasses/DefaultRoom.cs" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/Aurora/Typeclasses/DefaultScript.cs" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/Aurora/Typeclasses/Factories/DefaultObjectFactory.cs" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/Aurora/Typeclasses/Factories/IObjectFactory.cs" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/Aurora/Typeclasses/IDBHandler.cs" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/Aurora/Typeclasses/TypedObject.cs" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/Aurora/packages.config" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/world/combat_rules.py" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/world/rules.py" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/world/system/__init__.py" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/world/system/handlers.py" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/biscuitWizard_Evennia" afterPath="$PROJECT_DIR$/biscuitWizard_Evennia" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/evennia.db3" afterPath="$PROJECT_DIR$/server/evennia.db3" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.gitignore" afterPath="$PROJECT_DIR$/.gitignore" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/README.md" afterPath="$PROJECT_DIR$/README.md" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/commands/combat_commands.py" afterPath="$PROJECT_DIR$/commands/combat_commands.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/commands/default_cmdsets.py" afterPath="$PROJECT_DIR$/commands/default_cmdsets.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/gamedb/models.py" afterPath="$PROJECT_DIR$/gamedb/models.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/typeclasses/characters.py" afterPath="$PROJECT_DIR$/typeclasses/characters.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/typeclasses/objects.py" afterPath="$PROJECT_DIR$/typeclasses/objects.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/typeclasses/scripts.py" afterPath="$PROJECT_DIR$/typeclasses/scripts.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/world/models.py" afterPath="$PROJECT_DIR$/world/models.py" />
     </list>
     <ignored path="DarkHorizons3.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -79,7 +36,7 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="handlers.py" pinned="false" current-in-tab="true">
+      <file leaf-file-name="handlers.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/world/system/handlers.py">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="994">
@@ -87,6 +44,26 @@
               <folding>
                 <element signature="e#86#113#0" expanded="true" />
               </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name=".gitignore" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/.gitignore">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="816">
+              <caret line="48" column="10" selection-start-line="48" selection-start-column="10" selection-end-line="48" selection-end-column="10" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="README.md" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/README.md">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="680">
+              <caret line="40" column="7" selection-start-line="40" selection-start-column="7" selection-end-line="40" selection-end-column="7" />
+              <folding />
             </state>
           </provider>
         </entry>
@@ -126,6 +103,8 @@
         <option value="$PROJECT_DIR$/typeclasses/characters.py" />
         <option value="$PROJECT_DIR$/typeclasses/objects.py" />
         <option value="$PROJECT_DIR$/world/system/handlers.py" />
+        <option value="$PROJECT_DIR$/README.md" />
+        <option value="$PROJECT_DIR$/.gitignore" />
       </list>
     </option>
   </component>
@@ -507,14 +486,6 @@
     <watches-manager />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/typeclasses/characters.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1054">
-          <caret line="64" column="26" selection-start-line="64" selection-start-column="26" selection-end-line="65" selection-end-column="18" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/.gitignore">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="3740">
@@ -759,14 +730,6 @@
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/typeclasses/custom.py" />
-    <entry file="file://$PROJECT_DIR$/.gitignore">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="338">
-          <caret line="220" column="25" selection-start-line="220" selection-start-column="25" selection-end-line="220" selection-end-column="25" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/../evennia/evennia/utils/create.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="654">
@@ -904,6 +867,22 @@
           <folding>
             <element signature="e#86#113#0" expanded="true" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/README.md">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="680">
+          <caret line="40" column="7" selection-start-line="40" selection-start-column="7" selection-end-line="40" selection-end-column="7" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/.gitignore">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="816">
+          <caret line="48" column="10" selection-start-line="48" selection-start-column="10" selection-end-line="48" selection-end-column="10" />
+          <folding />
         </state>
       </provider>
     </entry>
