@@ -1,83 +1,136 @@
 from commands.command import Command
-from evennia import create_script
-from typeclasses.scripts import EngagementScript
+from world import combat_rules
+
+def is_engaged(caller):
+    if not hasattr(caller.ndb, 'engagement'):
+        return False
+    if caller.ndb.engagement.attacker == caller or caller.ndb.engagement.defender == caller:
+        return True
+    return False
 
 class CmdShoot(Command):
     key = "+shoot"
-    locks = "cmd:all()"
 
     def func(self):
-        engagement = create_script(EngagementScript, obj=self.caller)
+        cmd_check = combat_rules.cmd_check(self.caller, self.args, "shoot", ['NotEngaged', 'IsRanged',
+                                                                              'NeedsTarget', 'TargetNotSelf',
+                                                                              'TargetNotEngaged'])
+        if cmd_check:
+            self.caller.msg(cmd_check)
+            return
 
-        #script = next(engagement for engagement in self.caller.scripts if engagement.key == "engagement_script")
-        engagement.aggressor = self.caller
-        engagement.defender = self.caller  # Replace later TODO
-        engagement.location = self.caller.location
-
-        engagement.location.msg_contents("[GAME] {0} pewpews at the poor {1}".format(engagement.aggressor.name, engagement.defender.name))
-        engagement.defender.msg("[GAME] {0} is shooting at you!!\n\t+pass - +dodge - +quickshot".format( engagement.aggressor.name))
-
-        #engagement.start(force_restart=True)
+        target = self.caller.search(self.args)
+        combat_rules.start_combat(self.caller, target, "shoot")
 
 class CmdStrike(Command):
     key = "+strike"
-    locks = "cmd:all()"
 
     def func(self):
-        pass
+        cmd_check = combat_rules.cmd_check(self.caller, self.args, "strike", ['NotEngaged', 'IsMelee',
+                                                                              'NeedsTarget', 'TargetNotSelf',
+                                                                              'TargetNotEngaged'])
+        if cmd_check:
+            self.caller.msg(cmd_check)
+            return
 
 class CmdThrow(Command):
     key = "+throw"
-    locks = "cmd:all()"
 
     def func(self):
-        pass
+        cmd_check = combat_rules.cmd_check(self.caller, self.args, "throw", ['NotEngaged', 'IsThrowable',
+                                                                             'NeedsTarget', 'TargetNotSelf',
+                                                                             'TargetNotEngaged'])
+        if cmd_check:
+            self.caller.msg(cmd_check)
+            return
+
+class CmdAbort(Command):
+    key = "+abort"
+
+    def func(self):
+        cmd_check = combat_rules.cmd_check(self.caller, self.args, "abort", ['IsEngaged', 'IsAttacker'])
+        if cmd_check:
+            self.caller.msg(cmd_check)
+            return
+
+        engagement = self.caller.ndb.engagement
+        engagement.location.msg_contents("{0} aborts their attack.".format(self.caller.name))
+        engagement.clean_engagement()
 
 class CmdPass(Command):
     key = "+pass"
-    locks = "cmd:all()"
 
     def func(self):
-        pass
+        cmd_check = combat_rules.cmd_check(self.caller, self.args, "pass", ['IsEngaged', 'IsDefender'])
+        if cmd_check:
+            self.caller.msg(cmd_check)
+            return
+
+        combat_rules.resolve_combat(self.caller, "pass")
 
 class CmdDodge(Command):
     key = "+dodge"
-    locks = "cmd:all()"
 
     def func(self):
-        pass
+        cmd_check = combat_rules.cmd_check(self.caller, self.args, "dodge", ['IsEngaged', 'IsDefender'])
+        if cmd_check:
+            self.caller.msg(cmd_check)
+            return
+
+        combat_rules.resolve_combat(self.caller, "dodge")
 
 class CmdParry(Command):
     key = "+parry"
-    locks = "cmd:all()"
 
     def func(self):
-        pass
+        cmd_check = combat_rules.cmd_check(self.caller, self.args, "parry", ['IsEngaged', 'IsDefender', 'IsMelee'])
+        if cmd_check:
+            self.caller.msg(cmd_check)
+            return
+
+        combat_rules.resolve_combat(self.caller, "parry")
 
 class CmdQuickshot(Command):
     key = "+quickshot"
-    locks = "cmd:all()"
 
     def func(self):
-        pass
+        cmd_check = combat_rules.cmd_check(self.caller, self.args, "quickshot", ['IsEngaged', 'IsDefender',
+                                                                                 'IsRanged'])
+        if cmd_check:
+            self.caller.msg(cmd_check)
+            return
+
+        combat_rules.resolve_combat(self.caller, "quickshot")
 
 class CmdRiposte(Command):
     key = "+riposte"
-    locks = "cmd:all()"
 
     def func(self):
-        pass
+        cmd_check = combat_rules.cmd_check(self.caller, self.args, "riposte", ['IsEngaged', 'IsDefender', 'IsMelee'])
+        if cmd_check:
+            self.caller.msg(cmd_check)
+            return
+
+        combat_rules.resolve_combat(self.caller, "riposte")
 
 class CmdBlock(Command):
     key = "+block"
-    locks = "cmd:all()"
 
     def func(self):
-        pass
+        cmd_check = combat_rules.cmd_check(self.caller, self.args, "block", ['IsEngaged', 'IsDefender'])
+        if cmd_check:
+            self.caller.msg(cmd_check)
+            return
+
+        combat_rules.resolve_combat(self.caller, "block")
 
 class CmdCounter(Command):
     key = "+counter"
-    locks = "cmd:all()"
 
     def func(self):
-        pass
+        cmd_check = combat_rules.cmd_check(self.caller, self.args, "counter", ['IsEngaged', 'IsDefender'])
+        if cmd_check:
+            self.caller.msg(cmd_check)
+            return
+
+        combat_rules.resolve_combat(self.caller, "counter")

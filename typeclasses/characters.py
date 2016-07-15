@@ -10,6 +10,8 @@ creation commands.
 from evennia import DefaultCharacter
 from gamedb.models import Item
 from world.models import ItemStack
+from world.system.handlers import (ItemHandler, StatHandler)
+from evennia.utils.utils import (lazy_property)
 
 class Character(DefaultCharacter):
     """
@@ -31,6 +33,14 @@ class Character(DefaultCharacter):
     at_post_puppet - Echoes "PlayerName has entered the game" to the room.
 
     """
+    @lazy_property
+    def stats(self):
+        return StatHandler(self)
+
+    @lazy_property
+    def inventory(self):
+        return ItemHandler(self)
+
     def at_object_creation(self):
         self.db.items = list()
 

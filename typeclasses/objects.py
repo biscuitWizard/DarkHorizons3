@@ -11,6 +11,8 @@ inheritance.
 
 """
 from evennia import DefaultObject
+from world.system.handlers import (StatHandler, ItemHandler)
+from evennia.utils.utils import (lazy_property)
 
 class Object(DefaultObject):
     """
@@ -159,3 +161,20 @@ class Object(DefaultObject):
                                  object speaks
 
      """
+class GameObject(Object):
+    @lazy_property
+    def stats(self):
+        return StatHandler(self)
+
+    @lazy_property
+    def inventory(self):
+        return ItemHandler(self)
+
+class Army(GameObject):
+    pass
+
+class Vehicle(GameObject):
+    pass
+
+class NonPlayerCharacter(GameObject):
+    pass

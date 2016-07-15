@@ -16,7 +16,7 @@ own cmdsets by inheriting from them or directly from `evennia.CmdSet`.
 
 from evennia import default_cmds
 from commands.debug_commands import CmdAddItem
-from commands.combat_commands import CmdShoot
+from commands import combat_commands
 
 class CharacterCmdSet(default_cmds.CharacterCmdSet):
     """
@@ -35,7 +35,18 @@ class CharacterCmdSet(default_cmds.CharacterCmdSet):
         # any commands you add below will overload the default ones.
         #
         self.add(CmdAddItem())
-        self.add(CmdShoot())
+        self.add(combat_commands.CmdShoot())
+        self.add(combat_commands.CmdPass())
+        self.add(combat_commands.CmdDodge())
+        self.add(combat_commands.CmdAbort())
+        self.add(combat_commands.CmdBlock())
+        self.add(combat_commands.CmdCounter())
+        self.add(combat_commands.CmdParry())
+        self.add(combat_commands.CmdQuickshot())
+        self.add(combat_commands.CmdRiposte())
+        self.add(combat_commands.CmdStrike())
+        self.add(combat_commands.CmdThrow())
+
 
 
 class PlayerCmdSet(default_cmds.PlayerCmdSet):

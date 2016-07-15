@@ -21,6 +21,7 @@ class Trait(models.Model):
 
 class Race(models.Model):
     db_name = models.CharField(max_length=32)
+    db_traits = models.ManyToManyField(Trait, through='RaceTrait')
 
 class RaceTrait(models.Model):
     db_race = models.ForeignKey(Race)
@@ -30,8 +31,9 @@ class RaceTrait(models.Model):
 class Class(models.Model):
     db_name = models.CharField(max_length=32)
     db_is_force_sensitive = models.BooleanField()
+    db_traits = models.ManyToManyField(Trait, through='ClassTrait')
 
-class ClassTraits(models.Model):
+class ClassTrait(models.Model):
     db_class = models.ForeignKey(Class)
     db_trait = models.ForeignKey(Trait)
     db_value = models.IntegerField()
@@ -40,3 +42,9 @@ class TraitWordlevel(models.Model):
     db_trait = models.ForeignKey(Trait)
     db_ordinal = models.IntegerField()
     db_value = models.CharField(max_length=32)
+
+class CharacterLevel(models.Model):
+    db_character_id = models.IntegerField()
+    db_class = models.ForeignKey(Class)
+    db_is_major_level = models.BooleanField()
+    db_level_taken = models.IntegerField()

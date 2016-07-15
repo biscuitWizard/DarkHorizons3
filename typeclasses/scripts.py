@@ -94,17 +94,46 @@ class EngagementScript(DefaultScript):
     key = "engagement_script"
     desc = "Used during an active fight between two characters"
     start_delay = True
-    interval = 5
+    interval = 10
     repeats = 1
 
-    aggressor = None  # Who initiated the fight
+    attacker = None  # Who initiated the fight
     defender = None  # Who's the target
     location = None  # Where the fight is happening
+
+    def start_engagement(self, attacker, defender, location):
+        self.attacker = attacker
+        self.defender = defender
+        self.location = location
+        self._init_character(attacker)
+        self._init_character(defender)
+
+    def clean_engagement(self):
+        self._cleanup_character(self.attacker)
+        self._cleanup_character(self.defender)
+        self.stop()
 
     def at_repeat(self):
         "Called once after the initial wait delay."
         print 'Script called!!!'
         self.defender.msg('[GAME] You waited too long. Boom! Combat over.')
-        self.aggressor.msg('[GAME] Your prey took too look to response. Combat expired.')
+        self.attacker.msg('[GAME] Your prey took too look to response. Combat expired.')
+
+        self._cleanup_character(self.attacker)
+        self._cleanup_character(self.defender)
         self.stop()
 
+    def _init_character(self, character):
+        character.ndb.engagement = self
+        if not hasattr(character, 'wounds'):  # If a character doesn't have wounds, give empty ones.
+            self.db.wounds = {'heart': list()}, \
+                             {'left_arm': list()}, \
+                             {'right_arm': list()}, \
+                             {'left_leg': list()}, \
+                             {'right_leg': list()}, \
+                             {'torso': list()}, \
+                             {'head': list()}
+
+    def _cleanup_character(self, character):
+        del character.ndb.engagement
+        self.attacker.scripts.delete(self.key)
