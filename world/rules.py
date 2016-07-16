@@ -4,21 +4,6 @@ def is_ic(character):
     """Determines whether the given object is in character"""
     return True
 
-def calc_trait(character):
-    levels = 10
-    multiplier = 3
-    is_major = 1
-
-    trait_value = 0
-    for level in range(1, levels):
-        plateau = multiplier / 100
-        if not is_major:
-            plateau = plateau / 2
-
-        trait_value += (100 - trait_value) * plateau
-
-    return trait_value
-
 def trait_roll(traitValue, modifier):
     return random.randrange(-5, 5)
 

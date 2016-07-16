@@ -15,8 +15,8 @@ def resolve_combat(caller, action):
     engagement = caller.ndb.engagement
     engagement.pause()
 
-    attackRoll = rules.trait_roll(engagement.attacker.stats.get_trait("Guns"), 0)
-    defenseRoll = rules.trait_roll(engagement.defender.stats.get_trait("Evasion"), 0)
+    attackRoll = rules.trait_roll(engagement.attacker.stats.get_trait("Dodge"), 0)
+    defenseRoll = rules.trait_roll(engagement.defender.stats.get_trait("Dodge"), 0)
 
     if attackRoll - defenseRoll > 0:
         damageRoll = rules.dice_roll(6, 2)
