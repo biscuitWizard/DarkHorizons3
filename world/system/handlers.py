@@ -22,44 +22,32 @@ class StatHandler(object):
         """
         self.parent = obj
 
-    def get_trait(self, traitName, withRacial=True):
+    def get_trait(self, traitKey, withRacial=True):
         """
         Gets the value of a stat/trait on this object.
         Args:
-            traitName: The name of the trait to use. Spaces included.
+            traitKey: The name or ID of the trait to use. Spaces included.
             withRacial: Whether to include racial bonuses
 
         Returns:
             Integer value of the trait.
         """
-        """
+
         character_id = self.parent.id
         levels = CharacterLevel.objects.filter(db_character_id=character_id,
-                                               db_class__db_traits__db_name__icontains=traitName)
+                                               db_class__db_traits__db_name__icontains=traitKey)
         print "Found levels: {0}".format(levels.count())
         traitValue = 0
         for level in levels:
-            trait = next((t for t in level.db_class.db_traits if t.db_name == traitName), None)
-            print "Value for {0}".format(trait.db_name)"""
+            trait = next((t for t in level.db_class.db_traits if t.db_name == traitKey), None)
+            print "Value for {0}".format(trait.db_name)
         return 20
 
-    def get_trait(self, traitID, withRacial=True):
-        """
-        Gets the value of a stat/trait on this object.
-        Args:
-            traitID: The ID value of the trait to calculate
-            withRacial: Whether to include racial bonuses
-
-        Returns:
-            Integer value of the trait.
-        """
-        return 20
-
-    def get_trait_wordlevel(self, traitName, withRacial=True):
+    def get_trait_wordlevel(self, traitKey, withRacial=True):
         """
         Gets the word-level obfuscated value of a stat/trait on this object.
         Args:
-            traitName: The name of the trait to use. Spaces included.
+            traitKey: The name or ID of the trait to use. Spaces included.
             withRacial: Whether to include racial bonuses
 
         Returns:
@@ -71,7 +59,6 @@ class StatHandler(object):
 ItemHandler handles items for objects with virtual inventories enabled.
 These inventories are backed with the SQL database.
 """
-
 class ItemHandler(object):
     """
     Implements the handler. This sits on inventoried game objects.

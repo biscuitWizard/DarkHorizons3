@@ -2,8 +2,15 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="33340762-2107-46e5-85ae-3ffbb70a7804" name="Default" comment="">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/world/wordlevels.py" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/gamedb/migrations/0001_initial.py" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/gamedb/migrations/0002_auto_20160711_1650.py" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/gamedb/migrations/0003_auto_20160715_1558.py" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/gamedb/migrations/0004_class_db_traits.py" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/gamedb/migrations/0005_race_db_traits.py" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/server/evennia.db3" afterPath="" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/gamedb/models.py" afterPath="$PROJECT_DIR$/gamedb/models.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/world/system/handlers.py" afterPath="$PROJECT_DIR$/world/system/handlers.py" />
     </list>
     <ignored path="DarkHorizons3.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -37,8 +44,8 @@
       <file leaf-file-name="handlers.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/world/system/handlers.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="51">
-              <caret line="3" column="0" selection-start-line="3" selection-start-column="0" selection-end-line="3" selection-end-column="27" />
+            <state relative-caret-position="450">
+              <caret line="38" column="10" selection-start-line="38" selection-start-column="10" selection-end-line="38" selection-end-column="10" />
               <folding>
                 <element signature="e#86#113#0" expanded="true" />
               </folding>
@@ -46,11 +53,11 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name=".gitignore" pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/.gitignore">
+      <file leaf-file-name="models.py" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/gamedb/models.py">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="816">
-              <caret line="48" column="10" selection-start-line="48" selection-start-column="10" selection-end-line="48" selection-end-column="10" />
+              <caret line="50" column="0" selection-start-line="50" selection-start-column="0" selection-end-line="50" selection-end-column="0" />
               <folding />
             </state>
           </provider>
@@ -94,16 +101,16 @@
         <option value="$PROJECT_DIR$/world/system/__init__.py" />
         <option value="$PROJECT_DIR$/world/combat_rules.py" />
         <option value="$PROJECT_DIR$/world/rules.py" />
-        <option value="$PROJECT_DIR$/gamedb/models.py" />
         <option value="$PROJECT_DIR$/world/system/stathandler.py" />
         <option value="$PROJECT_DIR$/world/system/itemhandler.py" />
         <option value="$PROJECT_DIR$/world/system/custom_handlers.py" />
         <option value="$PROJECT_DIR$/typeclasses/characters.py" />
         <option value="$PROJECT_DIR$/typeclasses/objects.py" />
-        <option value="$PROJECT_DIR$/world/system/handlers.py" />
         <option value="$PROJECT_DIR$/README.md" />
         <option value="$PROJECT_DIR$/.gitignore" />
         <option value="$PROJECT_DIR$/world/wordlevels.py" />
+        <option value="$PROJECT_DIR$/world/system/handlers.py" />
+        <option value="$PROJECT_DIR$/gamedb/models.py" />
       </list>
     </option>
   </component>
@@ -793,14 +800,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/gamedb/models.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="357">
-          <caret line="23" column="4" selection-start-line="23" selection-start-column="4" selection-end-line="23" selection-end-column="4" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/world/combat_rules.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="-247">
@@ -837,16 +836,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/world/system/handlers.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="51">
-          <caret line="3" column="0" selection-start-line="3" selection-start-column="0" selection-end-line="3" selection-end-column="27" />
-          <folding>
-            <element signature="e#86#113#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/world/wordlevels.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="408">
@@ -859,8 +848,26 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/.gitignore">
       <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="340">
+          <caret line="20" column="7" selection-start-line="20" selection-start-column="7" selection-end-line="20" selection-end-column="7" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/world/system/handlers.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="450">
+          <caret line="38" column="10" selection-start-line="38" selection-start-column="10" selection-end-line="38" selection-end-column="10" />
+          <folding>
+            <element signature="e#86#113#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/gamedb/models.py">
+      <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="816">
-          <caret line="48" column="10" selection-start-line="48" selection-start-column="10" selection-end-line="48" selection-end-column="10" />
+          <caret line="50" column="0" selection-start-line="50" selection-start-column="0" selection-end-line="50" selection-end-column="0" />
           <folding />
         </state>
       </provider>
