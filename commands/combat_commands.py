@@ -83,7 +83,8 @@ class CmdParry(Command):
     key = "+parry"
 
     def func(self):
-        cmd_check = combat_rules.cmd_check(self.caller, self.args, "parry", ['IsEngaged', 'IsDefender', 'IsMelee'])
+        cmd_check = combat_rules.cmd_check(self.caller, self.args, "parry", ['IsEngaged', 'IsDefender', 'IsMelee',
+                                                                             'TargetIsMelee'])
         if cmd_check:
             self.caller.msg(cmd_check)
             return
@@ -106,7 +107,8 @@ class CmdRiposte(Command):
     key = "+riposte"
 
     def func(self):
-        cmd_check = combat_rules.cmd_check(self.caller, self.args, "riposte", ['IsEngaged', 'IsDefender', 'IsMelee'])
+        cmd_check = combat_rules.cmd_check(self.caller, self.args, "riposte", ['IsEngaged', 'IsDefender', 'IsMelee',
+                                                                               'TargetIsMelee'])
         if cmd_check:
             self.caller.msg(cmd_check)
             return
@@ -134,3 +136,21 @@ class CmdCounter(Command):
             return
 
         combat_rules.resolve_combat(self.caller, "counter")
+
+class CmdInterfere(Command):
+    key = "+interfere"
+    aliases = ["+shield", "+protect"]
+
+    def func(self):
+        cmd_check = combat_rules.cmd_check(self.caller, self.args, "counter", ['TargetIsEngaged', 'TargetIsDefender'])
+        if cmd_check:
+            self.caller.msg(cmd_check)
+            return
+
+        combat_rules.resolve_combat(self.caller, "interfere")
+
+class CmdReload(Command):
+    key = "+reload"
+
+    def func(self):
+        combat_rules.resolve_combat(self.caller, "reload")

@@ -1,7 +1,7 @@
 """
 File for managing the custom handlers built around the game's infrastructure.
 """
-from gamedb.models import (Trait, ClassTrait, CharacterLevel, RaceTrait)
+from gamedb.models import (Trait, ClassTrait, CharacterLevel, RaceTrait, Race)
 from decimal import *
 from world.wordlevels import *
 import math
@@ -12,11 +12,25 @@ class StatHandler(object):
     Ships or more.
     """
     @staticmethod
-    def resolve_trait_key(traitKey):
-        if isinstance(traitKey, basestring):
-            return Trait.objects.get(db_name=traitKey)
+    def resolve_trait_key(trait_key):
+        if isinstance(trait_key, basestring):
+            return Trait.objects.get(db_name=trait_key)
         else:
-            return Trait.objects.get(id=traitKey)
+            return Trait.objects.get(id=trait_key)
+
+    @staticmethod
+    def resolve_class_key(class_key):
+        if isinstance(class_key, basestring):
+            return Class.objects.get(db_name=class_key)
+        else:
+            return Class.objects.get(id=class_key)
+
+    @staticmethod
+    def resolve_race_key(race_key):
+        if isinstance(race_key, basestring):
+            return Race.objects.get(db_name=race_key)
+        else:
+            return Race.objects.get(id=race_key)
 
     def __init__(self, obj):
         """
@@ -25,6 +39,27 @@ class StatHandler(object):
             obj: An internal reference to the object this handler is attached to.
         """
         self.parent = obj
+
+    def get_level(self):
+        """
+        Gets the statted object's level.
+        Returns:
+            Integer representing character's current level.
+        """
+        max_level = CharacterLevel.objects.filter(db_character_id=self.parent.id).aggregate(Max('db_level_taken'))
+
+        return max_level if max_level else 0
+
+    def get_race(self):
+        """
+        Used to retrieve a stat from a character.
+        Returns:
+            The string of the race's name.
+        """
+        if not hasattr(self.parent.db, 'race_id') or self.parent.db.race_id is None:
+            return "Anomalous"
+
+        return Race.objects.get(id=self.parent.db.race_id).db_name
 
     def get_trait(self, trait_key, with_racial=True):
         """
@@ -66,11 +101,26 @@ class StatHandler(object):
             with_racial: Whether to include racial bonuses
 
         Returns:
-            A string word-level value for this calculed trait.
+            A string word-level value for this calculated trait.
         """
         trait_value = self.get_trait(trait_key, with_racial)
 
         return WordLevels.trait_wordlevel(trait_key, trait_value)
+
+    def apply_level(self, primary_class_key, secondary_class_key):
+        primary_class = resolve_race_key(primary_class_key)
+        secondary_class = resolve_race_key(secondary_class_key)
+        current_level = self.get_level()
+
+        new_level_primary = CharacterLevel(db_character_id=self.parent.id, db_class_id=primary_class.id,
+                                           db_level_taken=current_level+1, db_is_major_level=True)
+        new_level_secondary = CharacterLevel(db_character_id=self.parent.id, db_class_id=secondary_class.id,
+                                             db_level_taken=current_level+1, db_is_major_level=False)
+
+        new_level_primary.save()
+        new_level_secondary.save()
+
+
 """
 ItemHandler handles items for objects with virtual inventories enabled.
 These inventories are backed with the SQL database.
@@ -78,6 +128,49 @@ These inventories are backed with the SQL database.
 class ItemHandler(object):
     """
     Implements the handler. This sits on inventoried game objects.
+    """
+    def __init__(self, obj):
+        """
+        Initializes the handler.
+        Args:
+            obj: An internal reference to the object this handler is attached to.
+        """
+        self.parent = obj
+
+"""
+EquipmentHandler handles equipment for objects that are capable of equipping
+items.
+"""
+class EquipmentHandler(object):
+    """
+    Implements the handler. This sits on items capable of equipping items.
+    """
+    def __init__(self, obj):
+        """
+        Initializes the handler.
+        Args:
+            obj: An internal reference to the object this handler is attached to.
+        """
+        self.parent = obj
+
+class MoneyHandler(object):
+    """
+    Implements the handler. This object is responsible for dealing with the relationship
+    between an object and the bank database.
+    """
+    def __init__(self, obj):
+        """
+        Initializes the handler.
+        Args:
+            obj: An internal reference to the object this handler is attached to.
+        """
+        self.parent = obj
+
+class FactoryHandler(object):
+    """
+    Implements the handler. This sits on rooms that have resource nodes
+    on them. It handles both the resource nodes themselves, and any factories
+    built on this object.
     """
     def __init__(self, obj):
         """

@@ -170,6 +170,10 @@ class GameObject(Object):
     def inventory(self):
         return ItemHandler(self)
 
+    @lazy_property
+    def equipment(self):
+        return EquipmentHandler(self)
+
 class Army(GameObject):
     pass
 
