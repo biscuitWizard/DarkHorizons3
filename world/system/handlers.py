@@ -153,6 +153,14 @@ class EquipmentHandler(object):
         """
         self.parent = obj
 
+    def get_armor(self):
+        """
+        Definition to retrieve a character's current armor value.
+        Returns:
+            Integer value for Armor
+        """
+        return 0
+
 class MoneyHandler(object):
     """
     Implements the handler. This object is responsible for dealing with the relationship
@@ -179,3 +187,32 @@ class FactoryHandler(object):
             obj: An internal reference to the object this handler is attached to.
         """
         self.parent = obj
+
+class StatusHandler(object):
+    """
+    Implements the handler. This sits on objects capable of being wounded.
+    """
+    def __init__(self, obj):
+        """
+        Initializes the handler.
+        Args:
+            obj: An internal reference to the object this handler is attached to.
+        """
+        self.parent = obj
+
+    def get_critical_momentum(self):
+        """
+        Gets the current critical momentum for this character.
+        Returns:
+            An integer value of the character's current critical momentum.
+        """
+        if not hasattr(self.parent.db, 'wounds') or self.parent.db.wounds is None:
+            return 0
+        momentum = 0
+        wounds = self.parent.db.wounds
+        for wound_area_key in wounds.keys():
+            momentum += Sum(wounds[wound_area_key])
+        return momentum / 15
+
+    def hurt(self, damage, hit_location):
+        pass

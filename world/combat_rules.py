@@ -1,6 +1,7 @@
 from world import rules
 from evennia import create_script
 from typeclasses.scripts import EngagementScript
+from decimal import *
 
 def start_combat(caller, target, action):
     engagement = create_script(EngagementScript, obj=caller)
@@ -15,14 +16,18 @@ def resolve_combat(caller, action):
     engagement = caller.ndb.engagement
     engagement.pause()
 
-    attackRoll = rules.trait_roll(engagement.attacker.stats.get_trait("Dodge"), 0)
-    defenseRoll = rules.trait_roll(engagement.defender.stats.get_trait("Dodge"), 0)
+    attack_roll = rules.trait_roll(engagement.attacker.stats.get_trait("Dodge"), 0)
+    defense_roll = rules.trait_roll(engagement.defender.stats.get_trait("Dodge"), 0)
+    critical_momentum = engagement.defender.status.get_critical_momentum()
+    defender_armor = engagement.defender.equipment.get_armor()
+    # defender_toughness = engagement.defender.stats.get_trait("Endurance") / Decimal(10)
 
-    if attackRoll - defenseRoll > 0:
-        damageRoll = rules.dice_roll(6, 2)
-        hitLocation = rules.dice_roll(100, 1)
-        engagement.location.msg_contents("[DEBUG] Rolling 2d6 damage: {0}. Hit location: {1}".format(damageRoll, hitLocation))
+    if attack_roll - defense_roll > 0:
+        damage_roll = rules.dice_roll(6, 2)
+        hit_location = rules.dice_roll(100, 1)
+        engagement.location.msg_contents("[DEBUG] Rolling 2d6 damage: {0}. Hit location: {1}".format(damage_roll, hit_location))
         engagement.location.msg_contents("[GAME] {0} got smacked around a bit.".format(caller.name))
+        engagement.defender.status.hurt(damage_roll, hit_location)
     else:
         engagement.location.msg_contents("[GAME] {0} {1}s the attack.".format(caller.name, action))
     engagement.clean_engagement()

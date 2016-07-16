@@ -10,7 +10,8 @@ creation commands.
 from evennia import DefaultCharacter
 from gamedb.models import Item
 from world.models import ItemStack
-from world.system.handlers import (ItemHandler, StatHandler)
+from world.system.handlers import (ItemHandler, StatHandler, EquipmentHandler,
+                                   MoneyHandler, StatusHandler)
 from evennia.utils.utils import (lazy_property)
 
 class Character(DefaultCharacter):
@@ -48,6 +49,10 @@ class Character(DefaultCharacter):
     @lazy_property
     def money(self):
         return MoneyHandler(self)
+
+    @lazy_property
+    def status(self):
+        return StatusHandler(self)
 
     # def add_item(self, item_name, quantity=1):
     #     try:

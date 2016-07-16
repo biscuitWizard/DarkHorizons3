@@ -11,7 +11,7 @@ inheritance.
 
 """
 from evennia import DefaultObject
-from world.system.handlers import (StatHandler, ItemHandler)
+from world.system.handlers import (StatHandler, ItemHandler, EquipmentHandler)
 from evennia.utils.utils import (lazy_property)
 
 class Object(DefaultObject):
