@@ -16,20 +16,42 @@ def resolve_combat(caller, action):
     engagement = caller.ndb.engagement
     engagement.pause()
 
-    attack_roll = rules.trait_roll(engagement.attacker.stats.get_trait("Dodge"), 0)
-    defense_roll = rules.trait_roll(engagement.defender.stats.get_trait("Dodge"), 0)
     critical_momentum = engagement.defender.status.get_critical_momentum()
     defender_armor = engagement.defender.equipment.get_armor()
     # defender_toughness = engagement.defender.stats.get_trait("Endurance") / Decimal(10)
+    defender_toughness = 3
+    attacker_weapons = engagement.attacker.equipment.get_weapons()
 
-    if attack_roll - defense_roll > 0:
-        damage_roll = rules.dice_roll(6, 2)
-        hit_location = rules.dice_roll(100, 1)
-        engagement.location.msg_contents("[DEBUG] Rolling 2d6 damage: {0}. Hit location: {1}".format(damage_roll, hit_location))
-        engagement.location.msg_contents("[GAME] {0} got smacked around a bit.".format(caller.name))
-        engagement.defender.status.hurt(damage_roll, hit_location)
-    else:
-        engagement.location.msg_contents("[GAME] {0} {1}s the attack.".format(caller.name, action))
+    total_hits = 0
+    damage_list = list()
+    critical_made = False
+    for weapon in attacker_weapons:
+        attack_roll = rules.trait_roll(engagement.attacker.stats.get_trait("Dodge"), 0)
+        defense_roll = rules.trait_roll(engagement.defender.stats.get_trait("Dodge"), 0)
+        if attack_roll - defense_roll > 0:
+            hit_location = rules.dice_roll(100, 1)
+            damage_roll = rules.dice_roll(weapon.get_tag("Damage"))
+            damage = damage_roll - defender_armor + critical_momentum
+
+            if damage < 1:
+                # We were extremely ineffective.
+                engagement.location.msg_contents("The shot doesn't pierce their armor!")
+                continue
+
+            engagement.defender.status.hurt(damage, hit_location)
+            total_hits += 1
+            damage_list.add(damage)
+
+            if damage > defender_toughness:
+                critical_made = True
+
+    if total_hits > 0 and critical_momentum > 0 and Sum(damage_list) - defender_toughness > 0:
+        if critical_made:
+            critical = None  # Apply a critical from the status effect table.
+        else:
+            critical = None  # Apply a non-critical status effect from the table.
+
+    display_outcome(engagement, action, total_hits, damage_list, critical)
     engagement.clean_engagement()
 
 def cmd_check(caller, args, action, conditions):
@@ -93,3 +115,6 @@ def calc_momentum(character):
     if not hasattr(character.db, 'wounds'):
         return 0
     return sum(character.db.wounds.values()) / 15
+
+def display_outcome(engagement, action, total_hits, damage_list, critical):
+    engagement.location.msg_contents("Bang zoom.")

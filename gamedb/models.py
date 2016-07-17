@@ -16,6 +16,17 @@ class Item(models.Model):
     db_black_market_index = models.IntegerField()
     db_tags = models.CharField(max_length=512)
 
+    def get_tag(self, tag_key):
+        tags = self.db_tags.split(";")
+
+        try:
+            result = next(tag for tag in tags if tag.startswith(tag_key))
+            args = result.split('=')
+
+            return args[args.count() - 1]
+        except StopIteration:
+            return None
+
 class Trait(models.Model):
     db_name = models.CharField(max_length=32)
 
