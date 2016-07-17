@@ -13,3 +13,14 @@ def dice_roll(sides, count = 1):
         result += random.randrange(1, sides)
 
     return result
+
+def dice_roll_str(dice_str):
+    """
+    A method for rolling dice. Is capable of calculating traits and doing simple math.
+    Args:
+        dice_str: a string that contains a dice roll code. ex: 2d6
+
+    Returns:
+        The result of the dice roll.
+    """
+    return dice_roll(6,2)

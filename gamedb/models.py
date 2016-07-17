@@ -6,24 +6,34 @@ from django.db import models
 class ItemCategory(models.Model):
     db_name = models.CharField(max_length=32)
 
-class Item(models.Model):
+class ItemPrototype(models.Model):
     db_category = models.ForeignKey(ItemCategory)
     db_name = models.CharField(max_length=64)
     db_size_class = models.IntegerField()
     db_relative_size_class = models.IntegerField()
     db_weight_class = models.IntegerField()
+    db_tags = models.CharField(max_length=512)
+
+class Item(models.Model):
+    db_name = models.CharField(max_length=64)
+    db_item_prototype = models.ForeignKey(ItemPrototype)
     db_value = models.IntegerField()
     db_black_market_index = models.IntegerField()
     db_tags = models.CharField(max_length=512)
 
     def get_tag(self, tag_key):
-        tags = self.db_tags.split(";")
+        if tag_key in self.db_tags:
+            tags = self.db_tags.split(';')
+        elif tag_key in self.db_item_prototype.db_tags:
+            tags = self.db_item_prototype.db_tags.split(';')
+        else:
+            return None
 
         try:
             result = next(tag for tag in tags if tag.startswith(tag_key))
             args = result.split('=')
 
-            return args[args.count() - 1]
+            return args[len(args) - 1]
         except StopIteration:
             return None
 

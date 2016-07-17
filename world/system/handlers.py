@@ -1,7 +1,7 @@
 """
 File for managing the custom handlers built around the game's infrastructure.
 """
-from gamedb.models import (Trait, ClassTrait, CharacterLevel, RaceTrait, Race)
+from gamedb.models import (Trait, ClassTrait, CharacterLevel, RaceTrait, Race, Item)
 from decimal import *
 from world.wordlevels import *
 import math
@@ -155,11 +155,22 @@ class EquipmentHandler(object):
 
     def get_armor(self):
         """
-        Definition to retrieve a character's current armor value.
+        Definition to retrieve an object's current armor value.
         Returns:
             Integer value for Armor
         """
-        return 0
+        return 2
+
+    def get_weapons(self):
+        """
+        Definitions to retrieve a list of all of the object's equipped weapons.
+
+        For characters, this probably will be one. For ships, this might be many.
+        Returns:
+            A list of all weapons. This is done using the Item model.
+        """
+        return [Item(db_name="Firefly Pistol", db_tags="Damage=2d6;Damage_Type=Energy")]
+        # return [Item(db_name="Fists", db_tags="Damage=2d6;Damage_Type=Soft")]
 
 class MoneyHandler(object):
     """

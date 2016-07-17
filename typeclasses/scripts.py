@@ -101,6 +101,9 @@ class EngagementScript(DefaultScript):
     defender = None  # Who's the target
     location = None  # Where the fight is happening
 
+    attack_action = ""
+    defender_action = ""
+
     def start_engagement(self, attacker, defender, location):
         self.attacker = attacker
         self.defender = defender
