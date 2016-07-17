@@ -1,7 +1,8 @@
 """
 File for managing the custom handlers built around the game's infrastructure.
 """
-from gamedb.models import (Trait, ClassTrait, CharacterLevel, RaceTrait, Race, Item)
+from gamedb.models import (Trait, ClassTrait, CharacterLevel, RaceTrait,
+                           Race, Item, ItemPrototype)
 from decimal import *
 from world.wordlevels import *
 import math
@@ -169,7 +170,8 @@ class EquipmentHandler(object):
         Returns:
             A list of all weapons. This is done using the Item model.
         """
-        return [Item(db_name="Firefly Pistol", db_tags="Damage=2d6;Damage_Type=Energy")]
+        return [Item(db_name="Firefly Pistol", db_tags="Damage=2d6;Damage_Type=Energy",
+                     db_item_prototype=ItemPrototype(db_name="Laser Pistol", db_tags="Weapon_Type=Ranged"))]
         # return [Item(db_name="Fists", db_tags="Damage=2d6;Damage_Type=Soft")]
 
 class MoneyHandler(object):

@@ -49,13 +49,24 @@ def resolve_combat(caller, action):
                 critical_made = True
     critical = None
     if total_hits > 0 and critical_momentum > 0 and Sum(damage_list) - defender_toughness > 0:
-        if critical_made:
-            critical = None  # Apply a critical from the status effect table.
-        else:
-            critical = None  # Apply a non-critical status effect from the table.
+        critical = resolve_status_effect(engagement.defender, critical_made)
 
     display_outcome(engagement, total_hits, damage_list, critical)
     engagement.clean_engagement()
+
+def resolve_status_effect(target, is_critical):
+    """
+    Function to resolve a status effect against a target. Calling this
+    method will randomly select a status effect (based on is_critical)
+    and apply that status effect to the target.
+    Args:
+        target: The target to apply the status effect to.
+        is_critical: Whether or not this was a critical status effect.
+
+    Returns:
+        The status effect that was applied.
+    """
+    return None
 
 def cmd_check(caller, args, action, conditions):
     """"A function that can be called to test a variety of conditions in combat before executing a command.
@@ -76,13 +87,35 @@ def cmd_check(caller, args, action, conditions):
         if caller.ndb.engagement.defender != caller:
             return ("|413You cannot do that.|n")
     if 'IsMelee' in conditions:
-        pass
+        weapons = caller.equipment.get_weapons()
+        for weapon in weapons:
+            tag = weapon.get_tag("Weapon_Type")
+            if tag not in ["Melee", "Unarmed", "Lightsaber"]:
+                return ("|413You need a melee weapon to do that.|n")
     if 'IsRanged' in conditions:
-        pass
+        weapons = caller.equipment.get_weapons()
+        for weapon in weapons:
+            tag = weapon.get_tag("Weapon_Type")
+            if tag != "Ranged":
+                return ("|413You need a ranged weapon to do that.|n")
     if 'IsThrowable' in conditions:
-        pass
+        weapons = caller.equipment.get_weapons()
+        for weapon in weapons:
+            tag = weapon.get_tag("Weapon_Type")
+            if tag != "Throwing":
+                return ("|413You need a thrown weapon to do that.|n")
     if 'IsLightsaber' in conditions:
-        pass
+        weapons = caller.equipment.get_weapons()
+        for weapon in weapons:
+            tag = weapon.get_tag("Weapon_Type")
+            if tag != "Lightsaber":
+                return ("|413You need a lightsaber to do that.|n")
+    if 'IsUnarmed' in conditions:
+        weapons = caller.equipment.get_weapons()
+        for weapon in weapons:
+            tag = weapon.get_tag("Weapon_Type")
+            if tag != "Unarmed":
+                return ("|413You need to be unarmed to do that.|n")
     if 'HasHP' in conditions:
         # if not caller.db.HP:
         #    return ("|413You can't %s, you've been defeated!|n" % action)
@@ -105,6 +138,18 @@ def cmd_check(caller, args, action, conditions):
         if 'TargetNotEngaged' in conditions:
             if is_engaged(target):
                 return ("|413%s is already engaged. Please way for their attacks to resolve.|n" % target)
+        if 'TargetIsMelee' in conditions:
+            weapons = target.equipment.get_weapons()
+            for weapon in weapons:
+                tag = weapon.get_tag("Weapon_Type")
+                if tag not in ["Melee", "Unarmed", "Lightsaber"]:
+                    return ("|413They need to be attacking with a melee weapon to do that.|n")
+        if 'TargetIsRanged' in conditions:
+            weapons = target.equipment.get_weapons()
+            for weapon in weapons:
+                tag = weapon.get_tag("Weapon_Type")
+                if tag != "Ranged":
+                    return ("|413They need to be attacking with a ranged weapon to do that.|n")
     return False
 
 def is_engaged(character):
