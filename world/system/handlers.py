@@ -171,7 +171,8 @@ class EquipmentHandler(object):
             A list of all weapons. This is done using the Item model.
         """
         return [Item(db_name="Firefly Pistol", db_tags="Damage=2d6;Damage_Type=Energy",
-                     db_item_prototype=ItemPrototype(db_name="Laser Pistol", db_tags="Weapon_Type=Ranged"))]
+                     db_item_prototype=ItemPrototype(db_name="Laser Pistol",
+                                                     db_tags="Weapon_Type=Ranged;Weapon_Trait=Blaster",))]
         # return [Item(db_name="Fists", db_tags="Damage=2d6;Damage_Type=Soft")]
 
 class MoneyHandler(object):
@@ -205,6 +206,7 @@ class StatusHandler(object):
     """
     Implements the handler. This sits on objects capable of being wounded.
     """
+
     def __init__(self, obj):
         """
         Initializes the handler.
@@ -229,3 +231,47 @@ class StatusHandler(object):
 
     def hurt(self, damage, hit_location):
         pass
+
+    def advance_statuses(self):
+        """
+        Advances status effects on this object by a round.
+        """
+        pass
+
+    def apply_status_effect(self, status_effect, duration):
+        """
+        Applies a status effect to an object.
+        Args:
+            status_effect: The name of the status effect to apply.
+            duration: The number of 'turns' or rounds that the effect will last.
+
+        """
+        pass
+
+    def get_combat_modifier(self):
+        """
+        Totals up the list of combat modifiers for the object.
+        Returns:
+            An integer representing the sum of all modifiers.
+        """
+        return 0
+
+    def get_hit_location(self, hit_location_roll):
+        """
+        Resolves a number to a hit location on this object.
+        Args:
+            hit_location_roll: A value 1-100 to resolve
+
+        Returns:
+            A string representing the body location that was hit.
+        """
+        body_map = None
+        if not hasattr(self.parent.db, 'race_id'):
+            body_map = json.loads(Race.objects.get(id=1).db_body_table)
+        body_map = json.loads(Race.objects.get(id=race_id).db_body_table)
+
+        for location in sorted(body_map.items(), key=operator.itemgetter(1)):
+            if location[1] >= hit_location_roll:
+                return location[0]
+
+        return "anomalous"

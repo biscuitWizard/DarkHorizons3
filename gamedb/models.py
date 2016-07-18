@@ -3,6 +3,13 @@ from __future__ import unicode_literals
 from django.db import models
 
 # Create your models here.
+class HitEffect(models.Model):
+    db_body_part = models.CharField(max_length=16)
+    db_damage_type = models.CharField(max_length=16)
+    db_trigger_index = models.IntegerField()
+    db_status_effect = models.CharField(max_length=32)
+    db_status_duration = models.CharField(max_length=16)
+
 class ItemCategory(models.Model):
     db_name = models.CharField(max_length=32)
 
@@ -43,6 +50,7 @@ class Trait(models.Model):
 class Race(models.Model):
     db_name = models.CharField(max_length=32)
     db_traits = models.ManyToManyField(Trait, through='RaceTrait')
+    db_body_table = models.CharField(max_length=128)
 
 class RaceTrait(models.Model):
     db_race = models.ForeignKey(Race)

@@ -1,6 +1,7 @@
 from world import rules
 from evennia import create_script
 from typeclasses.scripts import EngagementScript
+from gamedb.models import HitEffect
 from decimal import *
 
 def start_combat(caller, target, action):
@@ -27,12 +28,15 @@ def resolve_combat(caller, action):
 
     total_hits = 0
     damage_list = list()
-    critical_made = False
+    critical = None
     for weapon in attacker_weapons:
-        attack_roll = rules.trait_roll(engagement.attacker.stats.get_trait("Dodge"), 0)
-        defense_roll = rules.trait_roll(engagement.defender.stats.get_trait("Dodge"), 0)
+        attack_skill = weapon.get_tag("Weapon_Trait")
+        attack_roll = rules.trait_roll(engagement.attacker.stats.get_trait(attack_skill),
+                                       engagement.attacker.status.get_combat_modifier())
+        defense_roll = rules.trait_roll(engagement.defender.stats.get_trait("Dodge"),
+                                        engagement.defender.status.get_combat_modifier())
         if attack_roll - defense_roll > 0:
-            hit_location = rules.dice_roll(100, 1)
+            hit_location = engagement.defender.status.get_hit_location(rules.dice_roll(100, 1))
             damage_roll = rules.dice_roll_str(weapon.get_tag("Damage"))
             damage = damage_roll - defender_armor + critical_momentum
 
@@ -45,28 +49,49 @@ def resolve_combat(caller, action):
             total_hits += 1
             damage_list.append(damage)
 
-            if damage > defender_toughness:
-                critical_made = True
-    critical = None
+            # First glancing hits populate the critical field.
+            # If this later becomes a critical hit, that's fine.
+            if damage - defender_toughness > 0 and critical is None:
+                critical = (hit_location, weapon.get_tag("Damage_Type"), True)
+
+            # Glancing hits always have a chance to turn into critical hits.
+            if damage > defender_toughness and (critical is None or critical[2] == True):
+                critical = (hit_location, weapon.get_tag("Damage_Type"), False)
+
     if total_hits > 0 and critical_momentum > 0 and Sum(damage_list) - defender_toughness > 0:
-        critical = resolve_status_effect(engagement.defender, critical_made)
+        critical = resolve_status_effect(engagement.defender, critical[0], critical[1], critical[2])
 
     display_outcome(engagement, total_hits, damage_list, critical)
     engagement.clean_engagement()
 
-def resolve_status_effect(target, is_critical):
+def resolve_status_effect(target, hit_location, damage_type, is_glancing):
     """
     Function to resolve a status effect against a target. Calling this
-    method will randomly select a status effect (based on is_critical)
+    method will randomly select a status effect (based on is_glancing)
     and apply that status effect to the target.
     Args:
         target: The target to apply the status effect to.
-        is_critical: Whether or not this was a critical status effect.
+        hit_location: Where the target was hit.
+        damage_type: The type of damage for the weapon that scored the critical.
+        is_glancing: Whether or not this was a critical status effect.
 
     Returns:
-        The status effect that was applied.
+        The status effects that were applied.
     """
-    return None
+    critical_roll = 0
+    if is_glancing:
+        critical_roll = rules.dice_roll(6, 1)
+    else:
+        critical_roll = rules.dice_roll(6, 2)
+
+    hit_effects = HitEffect.objects.filter(db_body_part__icontains=hit_location,
+                                           db_trigger_index=critical_roll,
+                                           db_damage_type__icontains=damage_type)
+    for hit_effect in hit_effects:
+        duration = rules.dice_roll_str(hit_effect.db_status_duration)
+        target.status.apply_status_effect(hit_effect.db_status_effect, duration)
+
+    return hit_effects
 
 def cmd_check(caller, args, action, conditions):
     """"A function that can be called to test a variety of conditions in combat before executing a command.
