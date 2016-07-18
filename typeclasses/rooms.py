@@ -20,6 +20,14 @@ class Room(DefaultRoom):
     """
     pass
 
+class FacilityRoom(Room):
+    """
+    A room that's designed specifically for facilities. Facilities are economy-specific
+    rooms owned by characters to product certain products.
+    """
+    pass
+
 class DebugRoom(Room):
     def at_object_creation(self):
         self.cmdset.add("")
+

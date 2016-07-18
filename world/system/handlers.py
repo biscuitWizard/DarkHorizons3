@@ -246,7 +246,14 @@ class StatusHandler(object):
             duration: The number of 'turns' or rounds that the effect will last.
 
         """
-        pass
+        tokens = status_effect.split('=')
+        model = StatusEffect(tokens[0], tokens[1], duration)
+
+        if not hasattr(self.parent.db, 'status_effects'):
+            self.parent.db.status_effects = list()
+        # self.parent.db.status_effects.append(model)
+        self.parent.msg("Adding a new status effect to you."
+                        "\nName: {0}\nValue: {1}\nDuration: {2}".format(model.name, model.value, model.duration))
 
     def get_combat_modifier(self):
         """

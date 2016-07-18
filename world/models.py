@@ -12,6 +12,13 @@ class ItemStack:
     def from_customstack(cls, item_id, quantity, custom_name):
         return cls(item_id, quantity, custom_name)
 
+class StatusEffect:
+    def __init__(self, name, value, duration):
+        self.name = name
+        self.value = value
+        self.duration = duration
+        self.remaining = duration
+
 class ResourceNode:
     def __init__(self):
         self.outputs = dict()

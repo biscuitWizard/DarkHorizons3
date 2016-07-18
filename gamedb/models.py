@@ -77,3 +77,15 @@ class CharacterLevel(models.Model):
     db_class = models.ForeignKey(Class)
     db_is_major_level = models.BooleanField()
     db_level_taken = models.IntegerField()
+
+class BankAccount(models.Model):
+    db_owner_id = models.IntegerField()
+    db_credits = models.IntegerField()
+
+class VehicleClass(models.Model):
+    db_class_type = models.IntegerField()
+    db_name = models.CharField(max_length=32)
+    db_size_class = models.IntegerField()
+    db_relative_size_class = models.IntegerField()
+    db_weight_class = models.IntegerField()
+    db_part_size_class = models.IntegerField()
