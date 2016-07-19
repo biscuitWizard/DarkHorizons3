@@ -89,3 +89,8 @@ class VehicleClass(models.Model):
     db_relative_size_class = models.IntegerField()
     db_weight_class = models.IntegerField()
     db_part_size_class = models.IntegerField()
+
+class RoomTheme(models.Model):
+    db_theme_key = models.CharField(max_length=32)
+    db_descriptor_type = models.IntegerField()
+    db_descriptor = models.CharField(max_length=16)
