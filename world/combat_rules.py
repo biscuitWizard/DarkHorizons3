@@ -4,6 +4,7 @@ from typeclasses.scripts import EngagementScript
 from gamedb.models import HitEffect
 from decimal import *
 
+
 def start_combat(caller, target, action):
     prefix = "|r[|yCOMBAT|r]|n"
     engagement = create_script(EngagementScript, obj=caller)
@@ -15,16 +16,21 @@ def start_combat(caller, target, action):
     engagement.defender.msg(
         "{1} {0} is shooting at you!!\n\t+pass - +dodge - +quickshot".format(engagement.attacker.name, prefix))
 
+
 def resolve_combat(caller, action):
     engagement = caller.ndb.engagement
+    skirmish = engagement.skirmish
     engagement.defender_action = action
     engagement.pause()
 
-    critical_momentum = engagement.defender.status.get_critical_momentum()
     defender_armor = engagement.defender.equipment.get_armor()
     # defender_toughness = engagement.defender.stats.get_trait("Endurance") / Decimal(10)
     defender_toughness = 3
     attacker_weapons = engagement.attacker.equipment.get_weapons()
+
+    # Update the advantage for the defender and attacker.
+    skirmish.adjust_advantage(engagement.attacker, engagement.attacker_action.get_fatigue() * -1)
+    skirmish.adjust_advantage(engagement.defender, engagement.defender_action.get_fatigue() * -1)
 
     total_hits = 0
     damage_list = list()
@@ -36,33 +42,44 @@ def resolve_combat(caller, action):
         defense_roll = rules.trait_roll(engagement.defender.stats.get_trait("Dodge"),
                                         engagement.defender.status.get_combat_modifier())
         if attack_roll - defense_roll > 0:
-            hit_location = engagement.defender.status.get_hit_location(rules.dice_roll(100, 1))
-            damage_roll = rules.dice_roll_str(weapon.get_tag("Damage"))
-            damage = damage_roll - defender_armor + critical_momentum
+            advantage_roll = rules.dice_roll(100, 1)
+            if advantage_roll >= skirmish.get_advantage(engagement.defender):
+                # Oh noes. They've been hit.
 
-            if damage < 1:
-                # We were extremely ineffective.
-                engagement.location.msg_contents("The shot doesn't pierce their armor!")
-                continue
+                hit_location = engagement.defender.status.get_hit_location(rules.dice_roll(100, 1))
+                damage_roll = rules.dice_roll_str(weapon.get_tag("Damage"))
+                damage = damage_roll - defender_armor
 
-            engagement.defender.status.hurt(damage, hit_location)
-            total_hits += 1
-            damage_list.append(damage)
+                if damage < 1:
+                    # We were extremely ineffective.
+                    engagement.location.msg_contents("The shot doesn't pierce their armor!")
+                    continue
 
-            # First glancing hits populate the critical field.
-            # If this later becomes a critical hit, that's fine.
-            if damage - defender_toughness > 0 and critical is None:
-                critical = (hit_location, weapon.get_tag("Damage_Type"), True)
+                engagement.defender.status.hurt(damage, hit_location)
+                total_hits += 1
+                damage_list.append(damage)
 
-            # Glancing hits always have a chance to turn into critical hits.
-            if damage > defender_toughness and (critical is None or critical[2] == True):
-                critical = (hit_location, weapon.get_tag("Damage_Type"), False)
+                # First glancing hits populate the critical field.
+                # If this later becomes a critical hit, that's fine.
+                if damage - defender_toughness > 0 and critical is None:
+                    critical = (hit_location, weapon.get_tag("Damage_Type"), True)
 
-    if total_hits > 0 and critical_momentum > 0 and Sum(damage_list) - defender_toughness > 0:
+                # Glancing hits always have a chance to turn into critical hits.
+                if damage > defender_toughness and (critical is None or critical[2] == True):
+                    critical = (hit_location, weapon.get_tag("Damage_Type"), False)
+            else:
+                # It was a lucky dodge/miss.
+                pass
+        else:
+            # It was a total miss.
+            pass
+
+    if total_hits > 0 and critical_momentum > 0 and sum(damage_list) - defender_toughness > 0:
         critical = resolve_status_effect(engagement.defender, critical[0], critical[1], critical[2])
 
     display_outcome(engagement, total_hits, damage_list, critical)
     engagement.clean_engagement()
+
 
 def resolve_status_effect(target, hit_location, damage_type, is_glancing):
     """
@@ -93,6 +110,7 @@ def resolve_status_effect(target, hit_location, damage_type, is_glancing):
 
     return hit_effects
 
+
 def cmd_check(caller, args, action, conditions):
     """"A function that can be called to test a variety of conditions in combat before executing a command.
     Returns false if everything checks out."""
@@ -101,46 +119,46 @@ def cmd_check(caller, args, action, conditions):
     # nargs = len(arglist)
     if 'NotEngaged' in conditions:
         if is_engaged(caller):
-            return ("|413Please wait for outstanding attacks to resolve!|n")
+            return "|413Please wait for outstanding attacks to resolve!|n"
     if 'IsEngaged' in conditions:
         if not is_engaged(caller):
-            return ("|413You are currently not engaged!|n")
+            return "|413You are currently not engaged!|n"
     if 'IsAttacker' in conditions:
         if caller.ndb.engagement.attacker != caller:
-            return ("|413You must be the attacker to do that!|n")
+            return "|413You must be the attacker to do that!|n"
     if 'IsDefender' in conditions:
         if caller.ndb.engagement.defender != caller:
-            return ("|413You cannot do that.|n")
+            return "|413You cannot do that.|n"
     if 'IsMelee' in conditions:
         weapons = caller.equipment.get_weapons()
         for weapon in weapons:
             tag = weapon.get_tag("Weapon_Type")
             if tag not in ["Melee", "Unarmed", "Lightsaber"]:
-                return ("|413You need a melee weapon to do that.|n")
+                return "|413You need a melee weapon to do that.|n"
     if 'IsRanged' in conditions:
         weapons = caller.equipment.get_weapons()
         for weapon in weapons:
             tag = weapon.get_tag("Weapon_Type")
             if tag != "Ranged":
-                return ("|413You need a ranged weapon to do that.|n")
+                return "|413You need a ranged weapon to do that.|n"
     if 'IsThrowable' in conditions:
         weapons = caller.equipment.get_weapons()
         for weapon in weapons:
             tag = weapon.get_tag("Weapon_Type")
             if tag != "Throwing":
-                return ("|413You need a thrown weapon to do that.|n")
+                return "|413You need a thrown weapon to do that.|n"
     if 'IsLightsaber' in conditions:
         weapons = caller.equipment.get_weapons()
         for weapon in weapons:
             tag = weapon.get_tag("Weapon_Type")
             if tag != "Lightsaber":
-                return ("|413You need a lightsaber to do that.|n")
+                return "|413You need a lightsaber to do that.|n"
     if 'IsUnarmed' in conditions:
         weapons = caller.equipment.get_weapons()
         for weapon in weapons:
             tag = weapon.get_tag("Weapon_Type")
             if tag != "Unarmed":
-                return ("|413You need to be unarmed to do that.|n")
+                return "|413You need to be unarmed to do that.|n"
     if 'HasHP' in conditions:
         # if not caller.db.HP:
         #    return ("|413You can't %s, you've been defeated!|n" % action)
@@ -148,34 +166,35 @@ def cmd_check(caller, args, action, conditions):
     # Conditions requiring a target start here.
     if 'NeedsTarget' in conditions:
         if not arglist:
-            return ("|413You need to specify a target!|n")
+            return "|413You need to specify a target!|n"
         if caller.search(arglist[0], quiet=True):
             target = caller.search(arglist[0], quiet=True)[0]
         else:
             target = False
         if not target:
-            return ("|413That is not a valid target!|n")
+            return "|413That is not a valid target!|n"
         if not rules.is_ic(target):
-            return ("|413That is not a valid target!|n")
+            return "|413That is not a valid target!|n"
         if 'TargetNotSelf' in conditions:
             if target == caller:
-                return ("|413You can't %s yourself!|n" % action)
+                return "|413You can't %s yourself!|n" % action
         if 'TargetNotEngaged' in conditions:
             if is_engaged(target):
-                return ("|413%s is already engaged. Please way for their attacks to resolve.|n" % target)
+                return "|413%s is already engaged. Please way for their attacks to resolve.|n" % target
         if 'TargetIsMelee' in conditions:
             weapons = target.equipment.get_weapons()
             for weapon in weapons:
                 tag = weapon.get_tag("Weapon_Type")
                 if tag not in ["Melee", "Unarmed", "Lightsaber"]:
-                    return ("|413They need to be attacking with a melee weapon to do that.|n")
+                    return "|413They need to be attacking with a melee weapon to do that.|n"
         if 'TargetIsRanged' in conditions:
             weapons = target.equipment.get_weapons()
             for weapon in weapons:
                 tag = weapon.get_tag("Weapon_Type")
                 if tag != "Ranged":
-                    return ("|413They need to be attacking with a ranged weapon to do that.|n")
+                    return "|413They need to be attacking with a ranged weapon to do that.|n"
     return False
+
 
 def is_engaged(character):
     if not hasattr(character.ndb, 'engagement') or not character.ndb.engagement:
@@ -183,6 +202,7 @@ def is_engaged(character):
     if character.ndb.engagement.attacker == character or character.ndb.engagement.defender == character:
         return True
     return False
+
 
 def display_outcome(engagement, total_hits, damage_list, critical):
     prefix = "|r[|yCOMBAT|r]|n"

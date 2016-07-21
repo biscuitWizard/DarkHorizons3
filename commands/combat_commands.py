@@ -1,18 +1,40 @@
 from commands.command import Command
 from world import combat_rules
 
-def is_engaged(caller):
-    if not hasattr(caller.ndb, 'engagement'):
-        return False
-    if caller.ndb.engagement.attacker == caller or caller.ndb.engagement.defender == caller:
-        return True
-    return False
 
-class CmdShoot(Command):
+class CombatCommand(Command):
+    skill = ""
+    fatigue = 0
+    cooldown = 0
+
+    def get_fatigue(self):
+        """
+        Method to get the fatigue used for this action.
+        Returns:
+            Returns an integer that represents the advantage cost.
+        """
+        return self.fatigue
+
+    def get_skill(self):
+        """
+        Method to get the skill used for this action.
+        Returns:
+            Returns a string that is the skill name.
+        """
+        return self.skill
+
+    def get_cooldown(self):
+        return self.cooldown
+
+
+class CmdShoot(CombatCommand):
     key = "+shoot"
+    skill = "Blaster"
+    fatigue = 5
+    counters = [CmdPass, CmdDodge, CmdQuickshot]
 
     def func(self):
-        cmd_check = combat_rules.cmd_check(self.caller, self.args, "shoot", ['NotEngaged', 'IsRanged',
+        cmd_check = combat_rules.cmd_check(self.caller, self.args, self.key, ['NotEngaged', 'IsRanged',
                                                                               'NeedsTarget', 'TargetNotSelf',
                                                                               'TargetNotEngaged'])
         if cmd_check:
@@ -20,35 +42,51 @@ class CmdShoot(Command):
             return
 
         target = self.caller.search(self.args)
-        combat_rules.start_combat(self.caller, target, "shoot")
+        combat_rules.start_combat(self.caller, target, self)
 
-class CmdStrike(Command):
+
+class CmdStrike(CombatCommand):
     key = "+strike"
+    skill = ""
+    fatigue = 5
 
     def func(self):
-        cmd_check = combat_rules.cmd_check(self.caller, self.args, "strike", ['NotEngaged', 'IsMelee',
+        cmd_check = combat_rules.cmd_check(self.caller, self.args, self.key, ['NotEngaged', 'IsMelee',
                                                                               'NeedsTarget', 'TargetNotSelf',
                                                                               'TargetNotEngaged'])
         if cmd_check:
             self.caller.msg(cmd_check)
             return
 
-class CmdThrow(Command):
+
+class CmdThrow(CombatCommand):
     key = "+throw"
+    skill = "Thrown"
+    fatigue = 8
 
     def func(self):
-        cmd_check = combat_rules.cmd_check(self.caller, self.args, "throw", ['NotEngaged', 'IsThrowable',
-                                                                             'NeedsTarget', 'TargetNotSelf',
-                                                                             'TargetNotEngaged'])
+        cmd_check = combat_rules.cmd_check(self.caller, self.args, self.key, ['NotEngaged', 'IsThrowable',
+                                                                              'NeedsTarget', 'TargetNotSelf',
+                                                                              'TargetNotEngaged'])
         if cmd_check:
             self.caller.msg(cmd_check)
             return
 
-class CmdAbort(Command):
+
+class CmdInject(CombatCommand):
+    key = "+inject"
+    skill = "Brawl"
+    fatigue = 8
+
+    def func(self):
+        pass
+
+
+class CmdAbort(CombatCommand):
     key = "+abort"
 
     def func(self):
-        cmd_check = combat_rules.cmd_check(self.caller, self.args, "abort", ['IsEngaged', 'IsAttacker'])
+        cmd_check = combat_rules.cmd_check(self.caller, self.args, self.key, ['IsEngaged', 'IsAttacker'])
         if cmd_check:
             self.caller.msg(cmd_check)
             return
@@ -57,100 +95,150 @@ class CmdAbort(Command):
         engagement.location.msg_contents("{0} aborts their attack.".format(self.caller.name))
         engagement.clean_engagement()
 
-class CmdPass(Command):
+
+class CmdPass(CombatCommand):
     key = "+pass"
+    fatigue = -5
 
     def func(self):
-        cmd_check = combat_rules.cmd_check(self.caller, self.args, "pass", ['IsEngaged', 'IsDefender'])
+        cmd_check = combat_rules.cmd_check(self.caller, self.args, self.key, ['IsEngaged', 'IsDefender'])
         if cmd_check:
             self.caller.msg(cmd_check)
             return
 
-        combat_rules.resolve_combat(self.caller, "pass")
+        combat_rules.resolve_combat(self.caller, self)
 
-class CmdDodge(Command):
+
+class CmdDodge(CombatCommand):
     key = "+dodge"
+    skill = "Dodge"
+    fatigue = 5
 
     def func(self):
-        cmd_check = combat_rules.cmd_check(self.caller, self.args, "dodge", ['IsEngaged', 'IsDefender'])
+        cmd_check = combat_rules.cmd_check(self.caller, self.args, self.key, ['IsEngaged', 'IsDefender'])
         if cmd_check:
             self.caller.msg(cmd_check)
             return
 
-        combat_rules.resolve_combat(self.caller, "dodge")
+        combat_rules.resolve_combat(self.caller, self)
 
-class CmdParry(Command):
+    def get_fatigue(self):
+        engagement = self.caller.ndb.engagement
+        if engagement.attack_action.key == "+strike":
+            return 10
+        return 5
+
+
+class CmdParry(CombatCommand):
     key = "+parry"
+    skill = "Melee"
+    fatigue = 5
 
     def func(self):
-        cmd_check = combat_rules.cmd_check(self.caller, self.args, "parry", ['IsEngaged', 'IsDefender', 'IsMelee',
-                                                                             'TargetIsMelee'])
+        cmd_check = combat_rules.cmd_check(self.caller, self.args, self.key, ['IsEngaged', 'IsDefender', 'IsMelee',
+                                                                              'TargetIsMelee'])
         if cmd_check:
             self.caller.msg(cmd_check)
             return
 
-        combat_rules.resolve_combat(self.caller, "parry")
+        combat_rules.resolve_combat(self.caller, self)
 
-class CmdQuickshot(Command):
+
+class CmdQuickshot(CombatCommand):
     key = "+quickshot"
+    skill = "Quickdraw"
+    fatigue = 10
+    cooldown = 2
 
     def func(self):
-        cmd_check = combat_rules.cmd_check(self.caller, self.args, "quickshot", ['IsEngaged', 'IsDefender',
-                                                                                 'IsRanged'])
+        cmd_check = combat_rules.cmd_check(self.caller, self.args, self.key, ['IsEngaged', 'IsDefender',
+                                                                              'IsRanged'])
         if cmd_check:
             self.caller.msg(cmd_check)
             return
 
-        combat_rules.resolve_combat(self.caller, "quickshot")
+        combat_rules.resolve_combat(self.caller, self)
 
-class CmdRiposte(Command):
+
+class CmdRiposte(CombatCommand):
     key = "+riposte"
+    skill = "Melee"
+    fatigue = 10
+    cooldown = 2
 
     def func(self):
-        cmd_check = combat_rules.cmd_check(self.caller, self.args, "riposte", ['IsEngaged', 'IsDefender', 'IsMelee',
-                                                                               'TargetIsMelee'])
+        cmd_check = combat_rules.cmd_check(self.caller, self.args, self.key, ['IsEngaged', 'IsDefender', 'IsMelee',
+                                                                              'TargetIsMelee'])
         if cmd_check:
             self.caller.msg(cmd_check)
             return
 
-        combat_rules.resolve_combat(self.caller, "riposte")
+        combat_rules.resolve_combat(self.caller, self)
 
-class CmdBlock(Command):
+
+class CmdBlock(CombatCommand):
     key = "+block"
+    skill = "Brawl"  # Melee is wielding melee weapon.
+    fatigue = 5
 
     def func(self):
-        cmd_check = combat_rules.cmd_check(self.caller, self.args, "block", ['IsEngaged', 'IsDefender'])
+        cmd_check = combat_rules.cmd_check(self.caller, self.args, self.key, ['IsEngaged', 'IsDefender'])
         if cmd_check:
             self.caller.msg(cmd_check)
             return
 
-        combat_rules.resolve_combat(self.caller, "block")
+        combat_rules.resolve_combat(self.caller, self)
 
-class CmdCounter(Command):
+    def get_skill(self):
+        if combat_rules.cmd_check(self.caller, self.args, self.key, ['IsMelee']):  # will return error if false
+            return "Brawl"  # Result if wielding blaster or brawling.
+        return "Melee"
+
+
+class CmdCounter(CombatCommand):
     key = "+counter"
+    skill = ""
+    fatigue = 10
+    cooldown = 2
 
     def func(self):
-        cmd_check = combat_rules.cmd_check(self.caller, self.args, "counter", ['IsEngaged', 'IsDefender'])
+        cmd_check = combat_rules.cmd_check(self.caller, self.args, self.key, ['IsEngaged', 'IsDefender'])
         if cmd_check:
             self.caller.msg(cmd_check)
             return
 
-        combat_rules.resolve_combat(self.caller, "counter")
+        combat_rules.resolve_combat(self.caller, self)
 
-class CmdInterfere(Command):
+
+class CmdInterfere(CombatCommand):
     key = "+interfere"
     aliases = ["+shield", "+protect"]
+    skill = "Athletics"
+    fatigue = 10
 
     def func(self):
-        cmd_check = combat_rules.cmd_check(self.caller, self.args, "counter", ['TargetIsEngaged', 'TargetIsDefender'])
+        cmd_check = combat_rules.cmd_check(self.caller, self.args, self.key, ['TargetIsEngaged', 'TargetIsDefender'])
         if cmd_check:
             self.caller.msg(cmd_check)
             return
 
-        combat_rules.resolve_combat(self.caller, "interfere")
+        combat_rules.resolve_combat(self.caller, self)
 
-class CmdReload(Command):
+
+class CmdReload(CombatCommand):
     key = "+reload"
+    skill = ""
+    fatigue = ""
 
     def func(self):
-        combat_rules.resolve_combat(self.caller, "reload")
+        combat_rules.resolve_combat(self.caller, self)
+
+
+class CmdCover(CombatCommand):
+    key = "+cover"
+    skill = ""
+    fatigue = ""
+
+    def func(self):
+        pass
+

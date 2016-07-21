@@ -1,3 +1,5 @@
+from commands.command import Command
+
 class CmdIC(Command):
     key = "+ic"
     def func(self):

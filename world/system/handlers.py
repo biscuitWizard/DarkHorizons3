@@ -1,9 +1,13 @@
 """
 File for managing the custom handlers built around the game's infrastructure.
 """
+from django.db.models import Sum, Max
+
 from gamedb.models import (Trait, ClassTrait, CharacterLevel, RaceTrait,
-                           Race, Item, ItemPrototype)
+                           Race, Item, ItemPrototype, Class)
 from decimal import *
+
+from world.models import StatusEffect
 from world.wordlevels import *
 import math
 
@@ -109,8 +113,8 @@ class StatHandler(object):
         return WordLevels.trait_wordlevel(trait_key, trait_value)
 
     def apply_level(self, primary_class_key, secondary_class_key):
-        primary_class = resolve_race_key(primary_class_key)
-        secondary_class = resolve_race_key(secondary_class_key)
+        primary_class = self.resolve_race_key(primary_class_key)
+        secondary_class = self.resolve_race_key(secondary_class_key)
         current_level = self.get_level()
 
         new_level_primary = CharacterLevel(db_character_id=self.parent.id, db_class_id=primary_class.id,
@@ -215,19 +219,19 @@ class StatusHandler(object):
         """
         self.parent = obj
 
-    def get_critical_momentum(self):
+    def get_wound_sum(self):
         """
-        Gets the current critical momentum for this character.
+        Gets the sum of all wounds on the object.
         Returns:
-            An integer value of the character's current critical momentum.
+            Integer value of all wounds on object.
         """
         if not hasattr(self.parent.db, 'wounds') or self.parent.db.wounds is None:
             return 0
-        momentum = 0
+        total = 0
         wounds = self.parent.db.wounds
         for wound_area_key in wounds.keys():
-            momentum += Sum(wounds[wound_area_key])
-        return momentum / 15
+            total += Sum(wounds[wound_area_key])
+        return total
 
     def hurt(self, damage, hit_location):
         pass
@@ -282,3 +286,6 @@ class StatusHandler(object):
                 return location[0]
 
         return "anomalous"
+
+    def get_body_locations(self):
+        return ['right_arm', 'left_arm', 'legs', 'head', 'torso']

@@ -12,7 +12,7 @@ just overloads its hooks to have it perform its function.
 
 """
 
-from evennia import DefaultScript
+from evennia import DefaultScript, create_script
 
 
 class Script(DefaultScript):
@@ -90,6 +90,74 @@ class Script(DefaultScript):
     """
     pass
 
+
+class SkirmishScript(DefaultScript):
+    """
+    A skirmish is a group of engagements that are happening in a single location.
+    It has a responsibility of tracking all active combatants in a room. When all
+    combatants leave the room (or disconnect), the script removes itself.
+
+    In game balance, this is used to adjust fatigue costs in group battles.
+    """
+    key = "skirmish_script"
+    desc = "Used on a room to describe active combat that is happening."
+    persistent = True
+    interval = 0
+    repeats = 0
+
+    combatants = []
+    combatant_advantages = dict()
+
+    def add_combatant(self, combatant):
+        """
+
+        Args:
+            combatant:
+
+        Returns:
+
+        """
+        if combatant.id not in self.combatant_advantages:
+            self.combatants.append(combatant)
+            self.combatant_advantages.append(combatant.id, max([100 - combatant.status.get_wound_sum(), 0]))
+
+    def remove_combatant(self, combatant):
+        """
+
+        Args:
+            combatant:
+
+        Returns:
+
+        """
+        self.combatants.remove(combatant)
+        del self.combatant_advantages[combatant.id]
+        if self.combatants.count() == 0:
+            self.stop()  # delete the script.
+
+    def adjust_advantage(self, combatant, amount):
+        """
+
+        Args:
+            combatant:
+            amount:
+
+        Returns:
+
+        """
+        pass
+
+    def get_advantage(self, combatant):
+        """
+
+        Args:
+            combatant:
+
+        Returns:
+
+        """
+        pass
+
 class EngagementScript(DefaultScript):
     key = "engagement_script"
     desc = "Used during an active fight between two characters"
@@ -100,14 +168,23 @@ class EngagementScript(DefaultScript):
     attacker = None  # Who initiated the fight
     defender = None  # Who's the target
     location = None  # Where the fight is happening
+    skirmish = None  # What skirmish this engagement belongs to.
 
-    attack_action = ""
-    defender_action = ""
+    attack_action = None  # Command object for the attack action.
+    defender_action = None  # Command object for the defend action.
 
     def start_engagement(self, attacker, defender, location):
         self.attacker = attacker
         self.defender = defender
         self.location = location
+
+        if not location.skirmish:
+            skirmish = create_script(EngagementScript, obj=location)
+            location.skirmish = skirmish
+            self.skirmish = skirmish
+        else:
+            self.skirmish = location.skirmish
+
         self._init_character(attacker)
         self._init_character(defender)
 
@@ -118,9 +195,8 @@ class EngagementScript(DefaultScript):
 
     def at_repeat(self):
         "Called once after the initial wait delay."
-        print 'Script called!!!'
         self.defender.msg('[GAME] You waited too long. Boom! Combat over.')
-        self.attacker.msg('[GAME] Your prey took too look to response. Combat expired.')
+        self.attacker.msg('[GAME] Your prey took too look to respond. Combat expired.')
 
         self._cleanup_character(self.attacker)
         self._cleanup_character(self.defender)
@@ -128,14 +204,11 @@ class EngagementScript(DefaultScript):
 
     def _init_character(self, character):
         character.ndb.engagement = self
+        character.locaton.skirmish.add_combatant(character)
         if not hasattr(character, 'wounds'):  # If a character doesn't have wounds, give empty ones.
-            self.db.wounds = {'heart': list()}, \
-                             {'left_arm': list()}, \
-                             {'right_arm': list()}, \
-                             {'left_leg': list()}, \
-                             {'right_leg': list()}, \
-                             {'torso': list()}, \
-                             {'head': list()}
+            character.db.wounds = dict()
+            for part in self.character.status.get_body_locations():
+                character.db.wounds.append(part, list())
 
     def _cleanup_character(self, character):
         del character.ndb.engagement
