@@ -42,17 +42,16 @@ def resolve_combat(caller, action):
     action.on_before_attack_resolution(engagement)
 
     for weapon in attacker_weapons:
-        # On before attack hook for combat API.
-        if not action.on_before_attack(engagement, weapon):
-            continue
-
         attack_roll = rules.trait_roll(engagement.attacker.stats.get_trait(attacker_skill),
                                        engagement.attacker.status.get_combat_modifier())
         defense_roll = rules.trait_roll(engagement.defender.stats.get_trait(defender_skill),
                                         engagement.defender.status.get_combat_modifier())
+        # On before attack hook for combat API.
+        if not action.on_before_attack(engagement, weapon, attack_roll, defense_roll):
+            continue
         if attack_roll - defense_roll > 0:
             advantage_roll = rules.dice_roll(100, 1)
-            if advantage_roll >= skirmish.get_advantage(engagement.defender):
+            if action.bypass_advantage or advantage_roll >= skirmish.get_advantage(engagement.defender):
                 # Oh noes. They've been hit.
                 # Do an API call to see if the command has anything it wants to do.
                 if not action.on_attack_hit(engagement, weapon, attack_roll, defense_roll, advantage_roll):

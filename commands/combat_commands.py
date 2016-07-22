@@ -6,6 +6,7 @@ class CombatCommand(Command):
     skill = ""
     fatigue = 0
     cooldown = 0
+    bypass_advantage = False
 
     def get_fatigue(self):
         """
@@ -29,13 +30,15 @@ class CombatCommand(Command):
     def on_before_attack_resolution(self, engagement):
         pass
 
-    def on_before_attack(self, engagement, weapon):
+    def on_before_attack(self, engagement, weapon, attack_roll, defense_roll):
         """
         Command API hook for combat that is called right before a weapon will
         attempt an attack on the target.
         Args:
             engagement: the current engagement this is happening on.
             weapon: the weapon being used for this attack round.
+            attack_roll: The attack roll for this attack
+            defense_roll: The defense roll for this attack
 
         Returns:
             Whether or not the attack should continue.
@@ -163,6 +166,7 @@ class CmdAbort(CombatCommand):
 class CmdPass(CombatCommand):
     key = "+pass"
     fatigue = -5
+    bypass_advantage = True
 
     def func(self):
         cmd_check = combat_rules.cmd_check(self.caller, self.args, self.key, ['IsEngaged', 'IsDefender'])
@@ -223,6 +227,20 @@ class CmdQuickshot(CombatCommand):
 
         combat_rules.resolve_combat(self.caller, self)
 
+    def on_before_attack(self, engagement, weapon, attack_roll, defense_roll):
+        disrupt_attack = False
+        if defense_roll > attack_roll:
+            # Hit. Roll against their advantage.
+            pass
+        elif defense_roll == attack_roll:
+            # Both miss.
+            disrupt_attack = True
+            pass
+        else:
+            # Quickshot fails.
+            pass
+
+        return not disrupt_attack
 
 class CmdRiposte(CombatCommand):
     key = "+riposte"
