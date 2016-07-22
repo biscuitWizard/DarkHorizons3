@@ -44,7 +44,8 @@ class CombatCommand(Command):
 
     def on_attack_hit(self, engagement, weapon, attack_roll, defense_roll, advantage_roll):
         """
-
+        Command API hook for when an attack successfully hits someone. This is an actual hit,
+        bypassing both skill check and advantage.
         Args:
             engagement: the current engagement this is happening on.
             weapon: the weapon being used for this attack round.
@@ -59,7 +60,8 @@ class CombatCommand(Command):
 
     def on_advantage_miss(self, engagement, weapon, attack_roll, defense_roll, advantage_roll):
         """
-
+        Command API hook for when an attack succeeds on the skill check, but fails
+        to break through the defender's advantage barrier.
         Args:
             engagement: the current engagement this is happening on.
             weapon: the weapon being used for this attack round.
@@ -74,7 +76,7 @@ class CombatCommand(Command):
 
     def on_attack_miss(self, engagement, weapon, attack_roll, defense_roll):
         """
-
+        Command API hook for when an attack misses a skill check roll.
         Args:
             engagement: the current engagement this is happening on.
             weapon: the weapon being used for this attack round.

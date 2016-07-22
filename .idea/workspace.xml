@@ -3,7 +3,6 @@
   <component name="ChangeListManager">
     <list default="true" id="33340762-2107-46e5-85ae-3ffbb70a7804" name="Default" comment="">
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/commands/combat_commands.py" afterPath="$PROJECT_DIR$/commands/combat_commands.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/world/combat_rules.py" afterPath="$PROJECT_DIR$/world/combat_rules.py" />
     </list>
     <ignored path="DarkHorizons3.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -39,8 +38,8 @@
       <file leaf-file-name="combat_commands.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/commands/combat_commands.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-1479">
-              <caret line="79" column="64" selection-start-line="79" selection-start-column="64" selection-end-line="79" selection-end-column="64" />
+            <state relative-caret-position="391">
+              <caret line="78" column="70" selection-start-line="78" selection-start-column="70" selection-end-line="78" selection-end-column="70" />
               <folding />
             </state>
           </provider>
@@ -87,8 +86,8 @@
         <option value="$PROJECT_DIR$/commands/global_commands.py" />
         <option value="$PROJECT_DIR$/typeclasses/scripts.py" />
         <option value="$PROJECT_DIR$/world/system/handlers.py" />
-        <option value="$PROJECT_DIR$/commands/combat_commands.py" />
         <option value="$PROJECT_DIR$/world/combat_rules.py" />
+        <option value="$PROJECT_DIR$/commands/combat_commands.py" />
       </list>
     </option>
   </component>
@@ -826,8 +825,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/commands/combat_commands.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-1479">
-          <caret line="79" column="64" selection-start-line="79" selection-start-column="64" selection-end-line="79" selection-end-column="64" />
+        <state relative-caret-position="391">
+          <caret line="78" column="70" selection-start-line="78" selection-start-column="70" selection-end-line="78" selection-end-column="70" />
           <folding />
         </state>
       </provider>
