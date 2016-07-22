@@ -2,12 +2,8 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="33340762-2107-46e5-85ae-3ffbb70a7804" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/commands/combat_commands.py" afterPath="$PROJECT_DIR$/commands/combat_commands.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/commands/global_commands.py" afterPath="$PROJECT_DIR$/commands/global_commands.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/typeclasses/scripts.py" afterPath="$PROJECT_DIR$/typeclasses/scripts.py" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/world/combat_rules.py" afterPath="$PROJECT_DIR$/world/combat_rules.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/world/system/handlers.py" afterPath="$PROJECT_DIR$/world/system/handlers.py" />
     </list>
     <ignored path="DarkHorizons3.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -28,14 +24,24 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="combat_rules.py" pinned="false" current-in-tab="true">
+      <file leaf-file-name="combat_rules.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/world/combat_rules.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="3298">
-              <caret line="194" column="54" selection-start-line="194" selection-start-column="54" selection-end-line="194" selection-end-column="54" />
+            <state relative-caret-position="436">
+              <caret line="77" column="0" selection-start-line="77" selection-start-column="0" selection-end-line="77" selection-end-column="0" />
               <folding>
                 <element signature="e#0#23#0" expanded="true" />
               </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="combat_commands.py" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/commands/combat_commands.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="-1479">
+              <caret line="79" column="64" selection-start-line="79" selection-start-column="64" selection-end-line="79" selection-end-column="64" />
+              <folding />
             </state>
           </provider>
         </entry>
@@ -79,9 +85,9 @@
         <option value="$PROJECT_DIR$/commands/economy_commands.py" />
         <option value="$PROJECT_DIR$/gamedb/models.py" />
         <option value="$PROJECT_DIR$/commands/global_commands.py" />
-        <option value="$PROJECT_DIR$/commands/combat_commands.py" />
         <option value="$PROJECT_DIR$/typeclasses/scripts.py" />
         <option value="$PROJECT_DIR$/world/system/handlers.py" />
+        <option value="$PROJECT_DIR$/commands/combat_commands.py" />
         <option value="$PROJECT_DIR$/world/combat_rules.py" />
       </list>
     </option>
@@ -789,16 +795,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/commands/combat_commands.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="3995">
-          <caret line="235" column="0" selection-start-line="235" selection-start-column="0" selection-end-line="235" selection-end-column="0" />
-          <folding>
-            <element signature="e#0#36#0" expanded="false" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/world/system/handlers.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="2456">
@@ -820,11 +816,19 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/world/combat_rules.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="3298">
-          <caret line="194" column="54" selection-start-line="194" selection-start-column="54" selection-end-line="194" selection-end-column="54" />
+        <state relative-caret-position="436">
+          <caret line="77" column="0" selection-start-line="77" selection-start-column="0" selection-end-line="77" selection-end-column="0" />
           <folding>
             <element signature="e#0#23#0" expanded="true" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/commands/combat_commands.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-1479">
+          <caret line="79" column="64" selection-start-line="79" selection-start-column="64" selection-end-line="79" selection-end-column="64" />
+          <folding />
         </state>
       </provider>
     </entry>

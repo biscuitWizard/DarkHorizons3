@@ -26,6 +26,68 @@ class CombatCommand(Command):
     def get_cooldown(self):
         return self.cooldown
 
+    def on_before_attack_resolution(self, engagement):
+        pass
+
+    def on_before_attack(self, engagement, weapon):
+        """
+        Command API hook for combat that is called right before a weapon will
+        attempt an attack on the target.
+        Args:
+            engagement: the current engagement this is happening on.
+            weapon: the weapon being used for this attack round.
+
+        Returns:
+            Whether or not the attack should continue.
+        """
+        return True
+
+    def on_attack_hit(self, engagement, weapon, attack_roll, defense_roll, advantage_roll):
+        """
+
+        Args:
+            engagement: the current engagement this is happening on.
+            weapon: the weapon being used for this attack round.
+            attack_roll: The attack roll for this attack
+            defense_roll: The defense roll for this attack
+            advantage_roll: The advantage roll used for this attack.
+
+        Returns:
+            Whether or not the attack should continue.
+        """
+        return True
+
+    def on_advantage_miss(self, engagement, weapon, attack_roll, defense_roll, advantage_roll):
+        """
+
+        Args:
+            engagement: the current engagement this is happening on.
+            weapon: the weapon being used for this attack round.
+            attack_roll: The attack roll for this attack
+            defense_roll: The defense roll for this attack
+            advantage_roll: The advantage roll used for this attack.
+
+        Returns:
+            Whether or not the attack should continue.
+        """
+        return True
+
+    def on_attack_miss(self, engagement, weapon, attack_roll, defense_roll):
+        """
+
+        Args:
+            engagement: the current engagement this is happening on.
+            weapon: the weapon being used for this attack round.
+            attack_roll: The attack roll for this attack
+            defense_roll: The defense roll for this attack
+
+        Returns:
+            Whether or not the attack should continue.
+        """
+        return True
+
+    def on_after_attack_resolution(self, engagement, total_hits, damage_list):
+        pass
 
 class CmdShoot(CombatCommand):
     key = "+shoot"

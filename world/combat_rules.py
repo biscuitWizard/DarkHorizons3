@@ -27,6 +27,9 @@ def resolve_combat(caller, action):
     # defender_toughness = engagement.defender.stats.get_trait("Endurance") / Decimal(10)
     defender_toughness = 3
     attacker_weapons = engagement.attacker.equipment.get_weapons()
+    defender_skill = engagement.defender_action.skill
+    attacker_skill = engagement.attacker_action.skill
+
 
     # Update the advantage for the defender and attacker.
     skirmish.adjust_advantage(engagement.attacker, engagement.attacker_action.get_fatigue() * -1)
@@ -35,16 +38,25 @@ def resolve_combat(caller, action):
     total_hits = 0
     damage_list = list()
     critical = None
+
+    action.on_before_attack_resolution(engagement)
+
     for weapon in attacker_weapons:
-        attack_skill = weapon.get_tag("Weapon_Trait")
-        attack_roll = rules.trait_roll(engagement.attacker.stats.get_trait(attack_skill),
+        # On before attack hook for combat API.
+        if not action.on_before_attack(engagement, weapon):
+            continue
+
+        attack_roll = rules.trait_roll(engagement.attacker.stats.get_trait(attacker_skill),
                                        engagement.attacker.status.get_combat_modifier())
-        defense_roll = rules.trait_roll(engagement.defender.stats.get_trait("Dodge"),
+        defense_roll = rules.trait_roll(engagement.defender.stats.get_trait(defender_skill),
                                         engagement.defender.status.get_combat_modifier())
         if attack_roll - defense_roll > 0:
             advantage_roll = rules.dice_roll(100, 1)
             if advantage_roll >= skirmish.get_advantage(engagement.defender):
                 # Oh noes. They've been hit.
+                # Do an API call to see if the command has anything it wants to do.
+                if not action.on_attack_hit(engagement, weapon, attack_roll, defense_roll, advantage_roll):
+                    continue
 
                 hit_location = engagement.defender.status.get_hit_location(rules.dice_roll(100, 1))
                 damage_roll = rules.dice_roll_str(weapon.get_tag("Damage"))
@@ -69,10 +81,18 @@ def resolve_combat(caller, action):
                     critical = (hit_location, weapon.get_tag("Damage_Type"), False)
             else:
                 # It was a lucky dodge/miss.
+                # Do an API call to see if the command has anything it wants to do.
+                if not action.on_advantage_miss(engagement, weapon, attack_roll, defense_roll, advantage_roll):
+                    continue
                 pass
         else:
             # It was a total miss.
+            # Do an API call to see if the command has anything it wants to do.
+            if not action.on_attack_miss(engagement, weapon, attack_roll, defense_roll):
+                continue
             pass
+
+    action.on_after_attack_resolution(engagement, total_hits, damage_list)
 
     if total_hits > 0 and critical_momentum > 0 and sum(damage_list) - defender_toughness > 0:
         critical = resolve_status_effect(engagement.defender, critical[0], critical[1], critical[2])
