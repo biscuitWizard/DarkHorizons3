@@ -23,9 +23,7 @@ def resolve_combat(caller, action):
     engagement.defender_action = action
     engagement.pause()
 
-    defender_armor = engagement.defender.equipment.get_armor()
-    # defender_toughness = engagement.defender.stats.get_trait("Endurance") / Decimal(10)
-    defender_toughness = 3
+
     attacker_weapons = engagement.attacker.equipment.get_weapons()
     defender_skill = engagement.defender_action.skill
     attacker_skill = engagement.attacker_action.skill
@@ -42,62 +40,94 @@ def resolve_combat(caller, action):
     action.on_before_attack_resolution(engagement)
 
     for weapon in attacker_weapons:
-        attack_roll = rules.trait_roll(engagement.attacker.stats.get_trait(attacker_skill),
-                                       engagement.attacker.status.get_combat_modifier())
-        defense_roll = rules.trait_roll(engagement.defender.stats.get_trait(defender_skill),
-                                        engagement.defender.status.get_combat_modifier())
         # On before attack hook for combat API.
-        if not action.on_before_attack(engagement, weapon, attack_roll, defense_roll):
+        if not action.on_before_attack(engagement):
             continue
-        if attack_roll - defense_roll > 0:
-            advantage_roll = rules.dice_roll(100, 1)
-            if action.bypass_advantage or advantage_roll >= skirmish.get_advantage(engagement.defender):
-                # Oh noes. They've been hit.
-                # Do an API call to see if the command has anything it wants to do.
-                if not action.on_attack_hit(engagement, weapon, attack_roll, defense_roll, advantage_roll):
-                    continue
 
-                hit_location = engagement.defender.status.get_hit_location(rules.dice_roll(100, 1))
-                damage_roll = rules.dice_roll_str(weapon.get_tag("Damage"))
-                damage = damage_roll - defender_armor
-
-                if damage < 1:
-                    # We were extremely ineffective.
-                    engagement.location.msg_contents("The shot doesn't pierce their armor!")
-                    continue
-
-                engagement.defender.status.hurt(damage, hit_location)
-                total_hits += 1
-                damage_list.append(damage)
-
-                # First glancing hits populate the critical field.
-                # If this later becomes a critical hit, that's fine.
-                if damage - defender_toughness > 0 and critical is None:
-                    critical = (hit_location, weapon.get_tag("Damage_Type"), True)
-
-                # Glancing hits always have a chance to turn into critical hits.
-                if damage > defender_toughness and (critical is None or critical[2] == True):
-                    critical = (hit_location, weapon.get_tag("Damage_Type"), False)
-            else:
-                # It was a lucky dodge/miss.
-                # Do an API call to see if the command has anything it wants to do.
-                if not action.on_advantage_miss(engagement, weapon, attack_roll, defense_roll, advantage_roll):
-                    continue
-                pass
-        else:
-            # It was a total miss.
-            # Do an API call to see if the command has anything it wants to do.
-            if not action.on_attack_miss(engagement, weapon, attack_roll, defense_roll):
-                continue
-            pass
+        resolve_weapon_attack()
 
     action.on_after_attack_resolution(engagement, total_hits, damage_list)
 
-    if total_hits > 0 and critical_momentum > 0 and sum(damage_list) - defender_toughness > 0:
-        critical = resolve_status_effect(engagement.defender, critical[0], critical[1], critical[2])
+    #  if total_hits > 0 and critical_momentum > 0 and sum(damage_list) - defender_toughness > 0:
+    #      critical = resolve_status_effect(engagement.defender, critical[0], critical[1], critical[2])
 
     display_outcome(engagement, total_hits, damage_list, critical)
     engagement.clean_engagement()
+
+def resolve_weapon_attack(attacker, defender, weapon, attack_skill, defense_skill):
+    """
+
+    Args:
+        attacker:
+        defender:
+        weapon:
+        attack_skill:
+        defense_skill:
+
+    Returns:
+
+    """
+    engagement = attacker.ndb.engagement
+    defender_armor = defender.equipment.get_armor()
+    # defender_toughness = engagement.defender.stats.get_trait("Endurance") / Decimal(10)
+    defender_toughness = 3
+
+    hit_roll = roll_to_hit(engagement.skirmish, attacker, defender, attack_skill, defense_skill)
+
+    if hit_roll == 1:  # Hit
+        # Oh noes. They've been hit.
+        # Do an API call to see if the command has anything it wants to do.
+        engagement.attacker_action.on_attack_hit(engagement, weapon)
+        engagement.defender_action.on_attack_hit(engagement, weapon)
+
+        hit_location = engagement.defender.status.get_hit_location(rules.dice_roll(100, 1))
+        damage_roll = rules.dice_roll_str(weapon.get_tag("Damage"))
+        damage = damage_roll - defender_armor
+
+        if damage < 1:
+            # We were extremely ineffective.
+            engagement.location.msg_contents("The shot doesn't pierce their armor!")
+            return
+
+        engagement.defender.status.hurt(damage, hit_location)
+        total_hits += 1
+        damage_list.append(damage)
+
+        # First glancing hits populate the critical field.
+        # If this later becomes a critical hit, that's fine.
+        if damage - defender_toughness > 0 and critical is None:
+            critical = (hit_location, weapon.get_tag("Damage_Type"), True)
+
+        # Glancing hits always have a chance to turn into critical hits.
+        if damage > defender_toughness and (critical is None or critical[2] == True):
+            critical = (hit_location, weapon.get_tag("Damage_Type"), False)
+    elif hit_roll == 0:  # Miss
+        engagement.attacker_action.on_attack_miss(engagement, weapon)
+        engagement.defender_action.on_attack_miss(engagement, weapon)
+    elif hit_roll == -1:  # Lucky Miss
+        engagement.attacker_action.on_advantage_miss(engagement, weapon)
+        engagement.defender_action.on_advantage_miss(engagement, weapon)
+
+def roll_to_hit(skirmish, attacker, defender, attacker_skill, defender_skill):
+    """
+    Function to roll a contested skill die and return a result.
+    Returns:
+        -1: Lucky Miss
+        0: Miss
+        1: Hit
+    """
+    attack_roll = rules.trait_roll(attacker.stats.get_trait(attacker_skill),
+                                   attacker.status.get_combat_modifier())
+    defense_roll = rules.trait_roll(defender.stats.get_trait(defender_skill),
+                                    defender.status.get_combat_modifier())
+    if attack_roll - defense_roll > 0:
+        advantage_roll = rules.dice_roll(100, 1)
+        if advantage_roll >= skirmish.get_advantage(defender):
+            return 1
+        else:
+            return -1
+    else:
+        return 0
 
 
 def resolve_status_effect(target, hit_location, damage_type, is_glancing):

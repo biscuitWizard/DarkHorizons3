@@ -6,7 +6,9 @@ class CombatCommand(Command):
     skill = ""
     fatigue = 0
     cooldown = 0
-    bypass_advantage = False
+
+    attacker_hit_status = None  # Whether the attacker has been hit, missed, or lucky missed
+    defender_hit_status = None  # Whether the defender has been hit, missed, or lucky missed
 
     def get_fatigue(self):
         """
@@ -45,51 +47,43 @@ class CombatCommand(Command):
         """
         return True
 
-    def on_attack_hit(self, engagement, weapon, attack_roll, defense_roll, advantage_roll):
+    def on_attack_hit(self, attacker, defender, weapon):
         """
         Command API hook for when an attack successfully hits someone. This is an actual hit,
         bypassing both skill check and advantage.
         Args:
             engagement: the current engagement this is happening on.
             weapon: the weapon being used for this attack round.
-            attack_roll: The attack roll for this attack
-            defense_roll: The defense roll for this attack
-            advantage_roll: The advantage roll used for this attack.
-
-        Returns:
-            Whether or not the attack should continue.
         """
-        return True
+        if attacker.id == attacker.ndb.engagement.attacker.id:
+            self.defender_hit_status = 1
+        else:
+            self.attacker_hit_status = 1
 
-    def on_advantage_miss(self, engagement, weapon, attack_roll, defense_roll, advantage_roll):
+    def on_advantage_miss(self, attacker, defender, weapon):
         """
         Command API hook for when an attack succeeds on the skill check, but fails
         to break through the defender's advantage barrier.
         Args:
             engagement: the current engagement this is happening on.
             weapon: the weapon being used for this attack round.
-            attack_roll: The attack roll for this attack
-            defense_roll: The defense roll for this attack
-            advantage_roll: The advantage roll used for this attack.
-
-        Returns:
-            Whether or not the attack should continue.
         """
-        return True
+        if attacker.id == attacker.ndb.engagement.attacker.id:
+            self.defender_hit_status = -1
+        else:
+            self.attacker_hit_status = -1
 
-    def on_attack_miss(self, engagement, weapon, attack_roll, defense_roll):
+    def on_attack_miss(self, attacker, defender, weapon):
         """
         Command API hook for when an attack misses a skill check roll.
         Args:
             engagement: the current engagement this is happening on.
             weapon: the weapon being used for this attack round.
-            attack_roll: The attack roll for this attack
-            defense_roll: The defense roll for this attack
-
-        Returns:
-            Whether or not the attack should continue.
         """
-        return True
+        if attacker.id == attacker.ndb.engagement.attacker.id:
+            self.defender_hit_status = 0
+        else:
+            self.attacker_hit_status = 0
 
     def on_after_attack_resolution(self, engagement, total_hits, damage_list):
         pass
@@ -227,20 +221,43 @@ class CmdQuickshot(CombatCommand):
 
         combat_rules.resolve_combat(self.caller, self)
 
-    def on_before_attack(self, engagement, weapon, attack_roll, defense_roll):
-        disrupt_attack = False
-        if defense_roll > attack_roll:
-            # Hit. Roll against their advantage.
-            pass
-        elif defense_roll == attack_roll:
-            # Both miss.
-            disrupt_attack = True
-            pass
-        else:
-            # Quickshot fails.
-            pass
+    def on_before_attack_resolution(self, engagement):
+        weapon = self.caller.equipment.get_weapons()[0]
+        combat_rules.resolve_weapon_attack(engagement.defender, engagement.attacker, weapon, self.skill,
+                                           engagement.attacker_action.skill)
 
-        return not disrupt_attack
+    def on_message_format(self, attacker, defender, **kwargs):
+        defender_weapon = kwargs["defender_weapon"]
+        defender_damage = kwargs["defender_damage"]
+        defender_hitloc = kwargs["defender_hitloc"]
+        attacker_weapon = kwargs["attacker_weapon"]
+        attacker_damage = kwargs["attacker_damage"]
+        attacker_hitloc = kwargs["attacker_hitloc"]
+
+        result = ""
+
+        if self.attacker_hit_status == 1 and self.defender_hit_status <= 0:
+            result += "{0} raises {2} {3} to fire, but {1}'s " \
+                      "{4} {5} {2} {6}.".format(defender.name, attacker.name, "her",
+                                                defender_weapon, attacker_weapon, attacker_damage,
+                                                attacker_hitloc)
+        elif self.attacker_hit_status <= 0 and self.defender_hit_status == 1:
+            result += "{0} shoots at {1} with {2} {5}, disrupting {3} attack and {6} " \
+                      "{1}.".format(defender.name, attacker.name, "her", "his",
+                                    attacker_weapon.db_name, defender_weapon.db_name,
+                                    "vivisects")
+        elif self.attacker_hit_status == 1 and self.defender_hit_status == 1:
+            result += "{0} shoots at {1} with {2} {5}, but {1}'s {4} hits and {6} " \
+                      "{0}.".format(defender.name, attacker.name, "her", "his",
+                                    attacker_weapon.db_name, defender_weapon.db_name,
+                                    "vivisects")
+        elif self.attacker_hit_status <= 0 and self.defender_hit_status <= 0:
+            result += "{0} shoots at {1} with {2} {5}, disrupting {1}'s attack " \
+                      "but missing {3}.".format(defender.name, attacker.name, "her", "his",
+                                                attacker_weapon.db_name, defender_weapon.db_name,
+                                                "vivisects")
+        return result
+
 
 class CmdRiposte(CombatCommand):
     key = "+riposte"
