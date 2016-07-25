@@ -88,6 +88,25 @@ class CombatCommand(Command):
     def on_after_attack_resolution(self, engagement, total_hits, damage_list):
         pass
 
+    def on_message_format(self, attacker, defender, **kwargs):
+        """
+        Overrides the default message to be displayed on resolving a combat action
+        with the return-variable supplied by this method.
+        Args:
+            attacker: The object that initiated the attack.
+            defender: The object on the defending side of the conflict.
+            **kwargs: A list of arguments relevant to the command. Commonly:
+                attacker_weapon: The attacker's weapon. (or weapons if mult.)
+                defender_weapon: The defender's weapon (or weapons if mult.)
+                defender_hitloc: Where the defender has been hit.
+                defender_damage: Damage the defender has taken.
+
+        Returns:
+            String with the value of the message. If None or 'pass',
+            the system ignore the output of this function.
+        """
+        pass
+
 class CmdShoot(CombatCommand):
     key = "+shoot"
     skill = "Blaster"

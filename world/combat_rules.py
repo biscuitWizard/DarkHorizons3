@@ -51,7 +51,10 @@ def resolve_combat(caller, action):
     #  if total_hits > 0 and critical_momentum > 0 and sum(damage_list) - defender_toughness > 0:
     #      critical = resolve_status_effect(engagement.defender, critical[0], critical[1], critical[2])
 
-    display_outcome(engagement, total_hits, damage_list, critical)
+    outcome = action.on_message_format(engagement.attacker, engagement.defender,
+                                       attacker_weapon = attacker_weapons)
+    if not outcome:
+        outcome = display_outcome(engagement, total_hits, damage_list, critical)
     engagement.clean_engagement()
 
 def resolve_intermediary_action(caller, action):
