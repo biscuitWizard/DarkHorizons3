@@ -9,7 +9,7 @@ from decimal import *
 
 from world.models import StatusEffect
 from world.wordlevels import *
-import math
+import math, json, operator
 
 class StatHandler(object):
     """
@@ -277,9 +277,10 @@ class StatusHandler(object):
             A string representing the body location that was hit.
         """
         body_map = None
-        if not hasattr(self.parent.db, 'race_id'):
+        if not hasattr(self.parent.db, 'race_id') or not self.parent.db.race_id:
             body_map = json.loads(Race.objects.get(id=1).db_body_table)
-        body_map = json.loads(Race.objects.get(id=race_id).db_body_table)
+        else:
+            body_map = json.loads(Race.objects.get(id=self.parent.db.race_id).db_body_table)
 
         for location in sorted(body_map.items(), key=operator.itemgetter(1)):
             if location[1] >= hit_location_roll:

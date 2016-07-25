@@ -32,7 +32,7 @@ class CombatCommand(Command):
     def on_before_attack_resolution(self, engagement):
         pass
 
-    def on_before_attack(self, engagement, weapon, attack_roll, defense_roll):
+    def on_before_attack(self, engagement, weapon):
         """
         Command API hook for combat that is called right before a weapon will
         attempt an attack on the target.
@@ -185,7 +185,7 @@ class CmdDodge(CombatCommand):
 
     def get_fatigue(self):
         engagement = self.caller.ndb.engagement
-        if engagement.attack_action.key == "+strike":
+        if engagement.attacker_action.key == "+strike":
             return 10
         return 5
 
@@ -325,11 +325,10 @@ class CmdInterfere(CombatCommand):
 
 class CmdReload(CombatCommand):
     key = "+reload"
-    skill = ""
-    fatigue = ""
+    fatigue = 3
 
     def func(self):
-        combat_rules.resolve_combat(self.caller, self)
+        combat_rules.resolve_intermediary_action(self.caller, self)
 
 
 class CmdCover(CombatCommand):

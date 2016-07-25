@@ -41,10 +41,10 @@ def resolve_combat(caller, action):
 
     for weapon in attacker_weapons:
         # On before attack hook for combat API.
-        if not action.on_before_attack(engagement):
+        if not action.on_before_attack(engagement, weapon):
             continue
 
-        resolve_weapon_attack()
+        resolve_weapon_attack(engagement.attacker, engagement.defender, weapon, attacker_skill, defender_skill)
 
     action.on_after_attack_resolution(engagement, total_hits, damage_list)
 
@@ -53,6 +53,27 @@ def resolve_combat(caller, action):
 
     display_outcome(engagement, total_hits, damage_list, critical)
     engagement.clean_engagement()
+
+def resolve_intermediary_action(caller, action):
+    """
+    Method used for actions that can be taken in or out of combat. When used in combat,
+    they subtract an amount of advantage for their use, but they don't actually
+    trigger an attack resolution.
+    Args:
+        caller: The player triggering this effect.
+        action: The action they are performing.
+    """
+    location = caller.location
+    # Guard statement in case there's no skirmish here.
+    if not hasattr(location.db, 'skirmish') or not location.db.skirmish:
+        return
+
+    skirmish = location.db.skirmish
+    if not skirmish.is_combatant(caller):
+        skirmish.add_combatant(caller)
+
+    skirmish.adjust_advantage(caller, action.fatigue * -1)
+
 
 def resolve_weapon_attack(attacker, defender, weapon, attack_skill, defense_skill):
     """
@@ -77,8 +98,8 @@ def resolve_weapon_attack(attacker, defender, weapon, attack_skill, defense_skil
     if hit_roll == 1:  # Hit
         # Oh noes. They've been hit.
         # Do an API call to see if the command has anything it wants to do.
-        engagement.attacker_action.on_attack_hit(engagement, weapon)
-        engagement.defender_action.on_attack_hit(engagement, weapon)
+        engagement.attacker_action.on_attack_hit(attacker, defender, weapon)
+        engagement.defender_action.on_attack_hit(attacker, defender, weapon)
 
         hit_location = engagement.defender.status.get_hit_location(rules.dice_roll(100, 1))
         damage_roll = rules.dice_roll_str(weapon.get_tag("Damage"))
@@ -90,23 +111,23 @@ def resolve_weapon_attack(attacker, defender, weapon, attack_skill, defense_skil
             return
 
         engagement.defender.status.hurt(damage, hit_location)
-        total_hits += 1
-        damage_list.append(damage)
+        #total_hits += 1
+        #damage_list.append(damage)
 
         # First glancing hits populate the critical field.
         # If this later becomes a critical hit, that's fine.
-        if damage - defender_toughness > 0 and critical is None:
-            critical = (hit_location, weapon.get_tag("Damage_Type"), True)
+        #if damage - defender_toughness > 0 and critical is None:
+        #    critical = (hit_location, weapon.get_tag("Damage_Type"), True)
 
         # Glancing hits always have a chance to turn into critical hits.
-        if damage > defender_toughness and (critical is None or critical[2] == True):
-            critical = (hit_location, weapon.get_tag("Damage_Type"), False)
+        #if damage > defender_toughness and (critical is None or critical[2] == True):
+        #    critical = (hit_location, weapon.get_tag("Damage_Type"), False)
     elif hit_roll == 0:  # Miss
-        engagement.attacker_action.on_attack_miss(engagement, weapon)
-        engagement.defender_action.on_attack_miss(engagement, weapon)
+        engagement.attacker_action.on_attack_miss(attacker, defender, weapon)
+        engagement.defender_action.on_attack_miss(attacker, defender, weapon)
     elif hit_roll == -1:  # Lucky Miss
-        engagement.attacker_action.on_advantage_miss(engagement, weapon)
-        engagement.defender_action.on_advantage_miss(engagement, weapon)
+        engagement.attacker_action.on_advantage_miss(attacker, defender, weapon)
+        engagement.defender_action.on_advantage_miss(attacker, defender, weapon)
 
 def roll_to_hit(skirmish, attacker, defender, attacker_skill, defender_skill):
     """
