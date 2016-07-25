@@ -119,7 +119,7 @@ class SkirmishScript(DefaultScript):
         """
         if combatant.id not in self.combatant_advantages:
             self.combatants.append(combatant)
-            self.combatant_advantages.append(combatant.id, max([100 - combatant.status.get_wound_sum(), 0]))
+            self.combatant_advantages[combatant.id] = max([100 - combatant.status.get_wound_sum(), 0])
 
     def remove_combatant(self, combatant):
         """
@@ -178,12 +178,12 @@ class EngagementScript(DefaultScript):
         self.defender = defender
         self.location = location
 
-        if not location.skirmish:
-            skirmish = create_script(EngagementScript, obj=location)
-            location.skirmish = skirmish
+        if not hasattr(location.ndb, 'skirmish') or not location.ndb.skirmish:
+            skirmish = create_script(SkirmishScript, obj=location)
+            self.location.ndb.skirmish = skirmish
             self.skirmish = skirmish
         else:
-            self.skirmish = location.skirmish
+            self.skirmish = location.ndb.skirmish
 
         self._init_character(attacker)
         self._init_character(defender)
@@ -204,11 +204,11 @@ class EngagementScript(DefaultScript):
 
     def _init_character(self, character):
         character.ndb.engagement = self
-        character.locaton.skirmish.add_combatant(character)
+        self.skirmish.add_combatant(character)
         if not hasattr(character, 'wounds'):  # If a character doesn't have wounds, give empty ones.
             character.db.wounds = dict()
-            for part in self.character.status.get_body_locations():
-                character.db.wounds.append(part, list())
+            for part in character.status.get_body_locations():
+                character.db.wounds[part] = list()
 
     def _cleanup_character(self, character):
         del character.ndb.engagement

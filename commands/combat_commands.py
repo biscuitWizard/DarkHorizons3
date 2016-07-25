@@ -92,7 +92,6 @@ class CmdShoot(CombatCommand):
     key = "+shoot"
     skill = "Blaster"
     fatigue = 5
-    counters = [CmdPass, CmdDodge, CmdQuickshot]
 
     def func(self):
         cmd_check = combat_rules.cmd_check(self.caller, self.args, self.key, ['NotEngaged', 'IsRanged',
@@ -228,8 +227,8 @@ class CmdQuickshot(CombatCommand):
 
     def on_message_format(self, attacker, defender, **kwargs):
         defender_weapon = kwargs["defender_weapon"]
-        defender_damage = kwargs["defender_damage"]
-        defender_hitloc = kwargs["defender_hitloc"]
+        #defender_damage = kwargs["defender_damage"]
+        #defender_hitloc = kwargs["defender_hitloc"]
         attacker_weapon = kwargs["attacker_weapon"]
         attacker_damage = kwargs["attacker_damage"]
         attacker_hitloc = kwargs["attacker_hitloc"]
