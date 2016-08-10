@@ -23,6 +23,7 @@ needs to be given explicitly (evennia.foo).
 
 # Use the defaults from Evennia unless explicitly overridden
 from evennia.settings_default import *
+from django.db import models
 
 ######################################################################
 # Evennia base server config
