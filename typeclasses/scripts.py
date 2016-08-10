@@ -101,6 +101,7 @@ class SkirmishScript(DefaultScript):
     """
     key = "skirmish_script"
     desc = "Used on a room to describe active combat that is happening."
+    location = None  # Location that the skirmish is happening at.
     persistent = True
     interval = 0
     repeats = 0
@@ -119,7 +120,7 @@ class SkirmishScript(DefaultScript):
         """
         if combatant.id not in self.combatant_advantages:
             self.combatants.append(combatant)
-            self.combatant_advantages.append(combatant.id, max([100 - combatant.status.get_wound_sum(), 0]))
+            self.combatant_advantages[combatant.id] = max([100 - combatant.status.get_wound_sum(), 0])
 
     def remove_combatant(self, combatant):
         """
@@ -133,7 +134,19 @@ class SkirmishScript(DefaultScript):
         self.combatants.remove(combatant)
         del self.combatant_advantages[combatant.id]
         if self.combatants.count() == 0:
+            del self.location.db.skirmish
             self.stop()  # delete the script.
+
+    def is_combatant(self, combatant):
+        """
+        Function to determine if combatant is involved in this particular skirmish.
+        Args:
+            combatant: The combatant we're checking for.
+
+        Returns:
+            Boolean value indicating the presence of the combatant in this skirmish.
+        """
+        return combatant.id in self.combatant_advantages
 
     def adjust_advantage(self, combatant, amount):
         """
@@ -170,7 +183,7 @@ class EngagementScript(DefaultScript):
     location = None  # Where the fight is happening
     skirmish = None  # What skirmish this engagement belongs to.
 
-    attack_action = None  # Command object for the attack action.
+    attacker_action = None  # Command object for the attack action.
     defender_action = None  # Command object for the defend action.
 
     def start_engagement(self, attacker, defender, location):
@@ -178,12 +191,13 @@ class EngagementScript(DefaultScript):
         self.defender = defender
         self.location = location
 
-        if not location.skirmish:
-            skirmish = create_script(EngagementScript, obj=location)
-            location.skirmish = skirmish
+        if not hasattr(location.db, 'skirmish') or not location.db.skirmish:
+            skirmish = create_script(SkirmishScript, obj=location)
+            skirmish.location = location
+            self.location.db.skirmish = skirmish
             self.skirmish = skirmish
         else:
-            self.skirmish = location.skirmish
+            self.skirmish = location.db.skirmish
 
         self._init_character(attacker)
         self._init_character(defender)
@@ -204,11 +218,11 @@ class EngagementScript(DefaultScript):
 
     def _init_character(self, character):
         character.ndb.engagement = self
-        character.locaton.skirmish.add_combatant(character)
+        self.skirmish.add_combatant(character)
         if not hasattr(character, 'wounds'):  # If a character doesn't have wounds, give empty ones.
             character.db.wounds = dict()
-            for part in self.character.status.get_body_locations():
-                character.db.wounds.append(part, list())
+            for part in character.status.get_body_locations():
+                character.db.wounds[part] = list()
 
     def _cleanup_character(self, character):
         del character.ndb.engagement

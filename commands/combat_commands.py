@@ -32,7 +32,7 @@ class CombatCommand(Command):
     def on_before_attack_resolution(self, engagement):
         pass
 
-    def on_before_attack(self, engagement, weapon, attack_roll, defense_roll):
+    def on_before_attack(self, engagement, weapon):
         """
         Command API hook for combat that is called right before a weapon will
         attempt an attack on the target.
@@ -88,11 +88,29 @@ class CombatCommand(Command):
     def on_after_attack_resolution(self, engagement, total_hits, damage_list):
         pass
 
+    def on_message_format(self, attacker, defender, **kwargs):
+        """
+        Overrides the default message to be displayed on resolving a combat action
+        with the return-variable supplied by this method.
+        Args:
+            attacker: The object that initiated the attack.
+            defender: The object on the defending side of the conflict.
+            **kwargs: A list of arguments relevant to the command. Commonly:
+                attacker_weapon: The attacker's weapon. (or weapons if mult.)
+                defender_weapon: The defender's weapon (or weapons if mult.)
+                defender_hitloc: Where the defender has been hit.
+                defender_damage: Damage the defender has taken.
+
+        Returns:
+            String with the value of the message. If None or 'pass',
+            the system ignore the output of this function.
+        """
+        pass
+
 class CmdShoot(CombatCommand):
     key = "+shoot"
     skill = "Blaster"
     fatigue = 5
-    counters = [CmdPass, CmdDodge, CmdQuickshot]
 
     def func(self):
         cmd_check = combat_rules.cmd_check(self.caller, self.args, self.key, ['NotEngaged', 'IsRanged',
@@ -186,7 +204,7 @@ class CmdDodge(CombatCommand):
 
     def get_fatigue(self):
         engagement = self.caller.ndb.engagement
-        if engagement.attack_action.key == "+strike":
+        if engagement.attacker_action.key == "+strike":
             return 10
         return 5
 
@@ -228,8 +246,8 @@ class CmdQuickshot(CombatCommand):
 
     def on_message_format(self, attacker, defender, **kwargs):
         defender_weapon = kwargs["defender_weapon"]
-        defender_damage = kwargs["defender_damage"]
-        defender_hitloc = kwargs["defender_hitloc"]
+        #defender_damage = kwargs["defender_damage"]
+        #defender_hitloc = kwargs["defender_hitloc"]
         attacker_weapon = kwargs["attacker_weapon"]
         attacker_damage = kwargs["attacker_damage"]
         attacker_hitloc = kwargs["attacker_hitloc"]
@@ -326,11 +344,10 @@ class CmdInterfere(CombatCommand):
 
 class CmdReload(CombatCommand):
     key = "+reload"
-    skill = ""
-    fatigue = ""
+    fatigue = 3
 
     def func(self):
-        combat_rules.resolve_combat(self.caller, self)
+        combat_rules.resolve_intermediary_action(self.caller, self)
 
 
 class CmdCover(CombatCommand):
