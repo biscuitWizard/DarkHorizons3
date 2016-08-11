@@ -35,16 +35,6 @@ SERVERNAME = "Dark_horizons_3"
 # Activate telnet service
 TELNET_ENABLED = True
 
-# A list of ports the Evennia telnet server listens on Can be one or many.
-TELNET_PORTS = [4000]
-
-# The webserver sits behind a Portal proxy. This is a list
-# of tuples (proxyport,serverport) used. The proxyports are what
-# the Portal proxy presents to the world. The serverports are
-# the internal ports the proxy uses to forward data to the Server-side
-# webserver (these should not be publicly open)
-WEBSERVER_PORTS = [(8000, 5001)]
-
 # Start the evennia webclient. This requires the webserver to be running and
 # offers the fallback ajax-based webclient backbone for browsers not supporting
 # the websocket one.
@@ -52,9 +42,6 @@ WEBCLIENT_ENABLED = True
 
 # Activate SSL protocol (SecureSocketLibrary)
 SSL_ENABLED = False
-
-# Ports to use for SSL
-SSL_PORTS = [4001]
 
 ######################################################################
 # Django web features
