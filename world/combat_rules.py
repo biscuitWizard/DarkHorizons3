@@ -67,12 +67,23 @@ def resolve_combat(caller, action):
     # Message all the characters in the room the results of the combat.
     engagement.location.msg_contents(message_resolver.parse(), from_obj=engagement.attacker)
 
+    # Apply the damage.
+    do_damage(hit_results)
+
     # Update the advantage for the defender and attacker.
     skirmish.adjust_advantage(engagement.attacker, engagement.attacker_action.get_fatigue() * -1)
     skirmish.adjust_advantage(engagement.defender, engagement.defender_action.get_fatigue() * -1)
 
     # Clean up the engagement and wrap up the combat round.
     engagement.clean_engagement()
+
+
+def do_damage(hit_results):
+    for hit_result in hit_results:
+        if hit_result.disrupted:
+            continue
+
+        hit_result.defender.hurt(hit_result.damage, hit_result.hit_location)
 
 
 def resolve_weapon_attack(attacker, defender, weapon, attack_skill, defense_skill):
