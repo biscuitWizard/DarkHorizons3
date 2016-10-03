@@ -5,13 +5,6 @@ from gamedb.models import HitEffect
 
 from world.combat_messages import CombatMessageResolver
 
-#def get_attack_responses(attacker, defender, attack_action):
-#    valid_responses = []
-#    for response_command in _RESPONSE_COMMANDS:
-#        if response_command.is_valid_response(attacker, defender, attack_action):
-#            valid_responses.append(response_command.key)
-#    return valid_responses
-
 
 class HitResult:
     attacker = None       # The damage dealer.

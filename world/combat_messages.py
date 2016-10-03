@@ -35,7 +35,7 @@ _COMBAT_RESOLVE_MAP = {
     }
 }
 
-_RE_COMBAT_TOKENS = re.compile(r'\[\^(attacker|defender|a_wep|d_wep|a_verb)')
+_RE_COMBAT_TOKENS = re.compile(r'\[\^(attacker|defender|a_wep|d_wep|a_verb|d_verb|a_damage|d_damage)')
 
 
 class CombatMessageResolver:
