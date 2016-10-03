@@ -11,11 +11,11 @@ class StatusEffect:
     def resolve_effect(self):
         pass
 
-    def calc_trait_modifier(self, trait):
+    def calc_trait_modifier(self, trait_key):
         """
         Calculates if this StatusEffect modifies the specified trait.
         Args:
-            trait: The trait's name.
+            trait_key: The trait's name.
 
         Returns:
             An integer that will be added to the user's final skill level.

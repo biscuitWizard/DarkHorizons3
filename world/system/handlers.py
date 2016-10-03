@@ -7,7 +7,7 @@ from gamedb.models import (Trait, ClassTrait, CharacterLevel, RaceTrait,
                            Race, Item, ItemPrototype, Class)
 from decimal import *
 
-from world.models import StatusEffect
+from world.status_effects import StatusEffect
 from world.wordlevels import *
 import math, json, operator
 
@@ -67,12 +67,13 @@ class StatHandler(object):
 
         return Race.objects.get(id=self.parent.db.race_id).db_name
 
-    def get_trait(self, trait_key, with_racial=True):
+    def get_trait(self, trait_key, with_racial=True, with_status_effects=True):
         """
         Gets the value of a stat/trait on this object.
         Args:
             trait_key: The name or ID of the trait to use. Spaces included.
             with_racial: Whether to include racial bonuses
+            with_status_effects: Whether to include status effect bonuses.
 
         Returns:
             Integer value of the trait.
@@ -97,7 +98,14 @@ class StatHandler(object):
 
             trait_value += x * y
 
-        return math.ceil(trait_value)
+        trait_value = math.ceil(trait_value)
+
+        # Calculate the trait modifiers for status_effects.
+        if with_status_effects and hasattr(self.parent.db, "status_effects"):
+            for status_effect in self.parent.db.status_effects:
+                trait_value += status_effect.calc_trait_modifier(trait_key)
+
+        return trait_value
 
     def get_trait_wordlevel(self, trait_key, with_racial=True):
         """
