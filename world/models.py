@@ -12,12 +12,6 @@ class ItemStack:
     def from_customstack(cls, item_id, quantity, custom_name):
         return cls(item_id, quantity, custom_name)
 
-class StatusEffect:
-    def __init__(self, name, value, duration):
-        self.name = name
-        self.value = value
-        self.duration = duration
-        self.remaining = duration
 
 class ResourceNode:
     def __init__(self):
@@ -39,11 +33,11 @@ class ResourceNode:
             return
         print "The given key was not present in the dictionary"
 
-
     # Roll the outputs and get the results for what the resource node
     # produces.
     def roll_outputs(self, item_id):
         pass
+
 
 class ResourceNodeOutput:
     def __init__(self, item_id, frequency, quantity):

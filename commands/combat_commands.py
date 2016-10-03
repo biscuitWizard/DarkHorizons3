@@ -6,6 +6,8 @@ class CombatCommand(Command):
     skill = ""
     fatigue = 0
     cooldown = 0
+    weapons = []  # The command executor's weapon.
+    verb = "ASSIGNVERB"
 
     attacker_hit_status = None  # Whether the attacker has been hit, missed, or lucky missed
     defender_hit_status = None  # Whether the defender has been hit, missed, or lucky missed
@@ -29,65 +31,6 @@ class CombatCommand(Command):
     def get_cooldown(self):
         return self.cooldown
 
-    def on_before_attack_resolution(self, engagement):
-        pass
-
-    def on_before_attack(self, engagement, weapon):
-        """
-        Command API hook for combat that is called right before a weapon will
-        attempt an attack on the target.
-        Args:
-            engagement: the current engagement this is happening on.
-            weapon: the weapon being used for this attack round.
-            attack_roll: The attack roll for this attack
-            defense_roll: The defense roll for this attack
-
-        Returns:
-            Whether or not the attack should continue.
-        """
-        return True
-
-    def on_attack_hit(self, attacker, defender, weapon):
-        """
-        Command API hook for when an attack successfully hits someone. This is an actual hit,
-        bypassing both skill check and advantage.
-        Args:
-            engagement: the current engagement this is happening on.
-            weapon: the weapon being used for this attack round.
-        """
-        if attacker.id == attacker.ndb.engagement.attacker.id:
-            self.defender_hit_status = 1
-        else:
-            self.attacker_hit_status = 1
-
-    def on_advantage_miss(self, attacker, defender, weapon):
-        """
-        Command API hook for when an attack succeeds on the skill check, but fails
-        to break through the defender's advantage barrier.
-        Args:
-            engagement: the current engagement this is happening on.
-            weapon: the weapon being used for this attack round.
-        """
-        if attacker.id == attacker.ndb.engagement.attacker.id:
-            self.defender_hit_status = -1
-        else:
-            self.attacker_hit_status = -1
-
-    def on_attack_miss(self, attacker, defender, weapon):
-        """
-        Command API hook for when an attack misses a skill check roll.
-        Args:
-            engagement: the current engagement this is happening on.
-            weapon: the weapon being used for this attack round.
-        """
-        if attacker.id == attacker.ndb.engagement.attacker.id:
-            self.defender_hit_status = 0
-        else:
-            self.attacker_hit_status = 0
-
-    def on_after_attack_resolution(self, engagement, total_hits, damage_list):
-        pass
-
     def on_message_format(self, attacker, defender, **kwargs):
         """
         Overrides the default message to be displayed on resolving a combat action
@@ -105,14 +48,22 @@ class CombatCommand(Command):
             String with the value of the message. If None or 'pass',
             the system ignore the output of this function.
         """
-        pass
+        return "[COMBAT] You {0} at {1} with your {2}!".format(self.verb, defender.name, self.weapons[0].name)
+
+    def on_message_oformat(self, attacker, defender):
+        # Default message: Attacker shoots at Xeebo with his/her Firefly Pistol!
+        return "[COMBAT] {0} {1}s at {2} with [^p {3}!".format(attacker.name, self.verb, defender.name,
+                                                               self.weapons[0].name)
+
 
 class CmdShoot(CombatCommand):
     key = "+shoot"
     skill = "Blaster"
     fatigue = 5
+    verb = "shoot"
 
     def func(self):
+        self.weapons = self.caller.equipment.get_weapons()
         cmd_check = combat_rules.cmd_check(self.caller, self.args, self.key, ['NotEngaged', 'IsRanged',
                                                                               'NeedsTarget', 'TargetNotSelf',
                                                                               'TargetNotEngaged'])
@@ -128,8 +79,10 @@ class CmdStrike(CombatCommand):
     key = "+strike"
     skill = ""
     fatigue = 5
+    verb = "strike"
 
     def func(self):
+        self.weapons = self.caller.equipment.get_weapons()
         cmd_check = combat_rules.cmd_check(self.caller, self.args, self.key, ['NotEngaged', 'IsMelee',
                                                                               'NeedsTarget', 'TargetNotSelf',
                                                                               'TargetNotEngaged'])
@@ -142,8 +95,10 @@ class CmdThrow(CombatCommand):
     key = "+throw"
     skill = "Thrown"
     fatigue = 8
+    verb = "throw"
 
     def func(self):
+        self.weapons = self.caller.equipment.get_weapons()
         cmd_check = combat_rules.cmd_check(self.caller, self.args, self.key, ['NotEngaged', 'IsThrowable',
                                                                               'NeedsTarget', 'TargetNotSelf',
                                                                               'TargetNotEngaged'])
@@ -156,6 +111,7 @@ class CmdInject(CombatCommand):
     key = "+inject"
     skill = "Brawl"
     fatigue = 8
+    verb = "inject"
 
     def func(self):
         pass
@@ -165,6 +121,7 @@ class CmdAbort(CombatCommand):
     key = "+abort"
 
     def func(self):
+        self.weapons = self.caller.equipment.get_weapons()
         cmd_check = combat_rules.cmd_check(self.caller, self.args, self.key, ['IsEngaged', 'IsAttacker'])
         if cmd_check:
             self.caller.msg(cmd_check)
@@ -181,6 +138,7 @@ class CmdPass(CombatCommand):
     bypass_advantage = True
 
     def func(self):
+        self.weapons = self.caller.equipment.get_weapons()
         cmd_check = combat_rules.cmd_check(self.caller, self.args, self.key, ['IsEngaged', 'IsDefender'])
         if cmd_check:
             self.caller.msg(cmd_check)
@@ -195,6 +153,7 @@ class CmdDodge(CombatCommand):
     fatigue = 5
 
     def func(self):
+        self.weapons = self.caller.equipment.get_weapons()
         cmd_check = combat_rules.cmd_check(self.caller, self.args, self.key, ['IsEngaged', 'IsDefender'])
         if cmd_check:
             self.caller.msg(cmd_check)
@@ -215,6 +174,7 @@ class CmdParry(CombatCommand):
     fatigue = 5
 
     def func(self):
+        self.weapons = self.caller.equipment.get_weapons()
         cmd_check = combat_rules.cmd_check(self.caller, self.args, self.key, ['IsEngaged', 'IsDefender', 'IsMelee',
                                                                               'TargetIsMelee'])
         if cmd_check:
@@ -231,6 +191,7 @@ class CmdQuickshot(CombatCommand):
     cooldown = 2
 
     def func(self):
+        self.weapons = self.caller.equipment.get_weapons()
         cmd_check = combat_rules.cmd_check(self.caller, self.args, self.key, ['IsEngaged', 'IsDefender',
                                                                               'IsRanged'])
         if cmd_check:
@@ -246,8 +207,8 @@ class CmdQuickshot(CombatCommand):
 
     def on_message_format(self, attacker, defender, **kwargs):
         defender_weapon = kwargs["defender_weapon"]
-        #defender_damage = kwargs["defender_damage"]
-        #defender_hitloc = kwargs["defender_hitloc"]
+        # defender_damage = kwargs["defender_damage"]
+        # defender_hitloc = kwargs["defender_hitloc"]
         attacker_weapon = kwargs["attacker_weapon"]
         attacker_damage = kwargs["attacker_damage"]
         attacker_hitloc = kwargs["attacker_hitloc"]
@@ -284,6 +245,7 @@ class CmdRiposte(CombatCommand):
     cooldown = 2
 
     def func(self):
+        self.weapons = self.caller.equipment.get_weapons()
         cmd_check = combat_rules.cmd_check(self.caller, self.args, self.key, ['IsEngaged', 'IsDefender', 'IsMelee',
                                                                               'TargetIsMelee'])
         if cmd_check:
@@ -299,6 +261,7 @@ class CmdBlock(CombatCommand):
     fatigue = 5
 
     def func(self):
+        self.weapons = self.caller.equipment.get_weapons()
         cmd_check = combat_rules.cmd_check(self.caller, self.args, self.key, ['IsEngaged', 'IsDefender'])
         if cmd_check:
             self.caller.msg(cmd_check)
@@ -319,6 +282,7 @@ class CmdCounter(CombatCommand):
     cooldown = 2
 
     def func(self):
+        self.weapons = self.caller.equipment.get_weapons()
         cmd_check = combat_rules.cmd_check(self.caller, self.args, self.key, ['IsEngaged', 'IsDefender'])
         if cmd_check:
             self.caller.msg(cmd_check)
@@ -334,6 +298,7 @@ class CmdInterfere(CombatCommand):
     fatigue = 10
 
     def func(self):
+        self.weapons = self.caller.equipment.get_weapons()
         cmd_check = combat_rules.cmd_check(self.caller, self.args, self.key, ['TargetIsEngaged', 'TargetIsDefender'])
         if cmd_check:
             self.caller.msg(cmd_check)
@@ -347,6 +312,7 @@ class CmdReload(CombatCommand):
     fatigue = 3
 
     def func(self):
+        self.weapons = self.caller.equipment.get_weapons()
         combat_rules.resolve_intermediary_action(self.caller, self)
 
 
@@ -356,5 +322,6 @@ class CmdCover(CombatCommand):
     fatigue = ""
 
     def func(self):
+        self.weapons = self.caller.equipment.get_weapons()
         pass
 

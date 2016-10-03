@@ -1,5 +1,7 @@
 from __future__ import unicode_literals
 
+from evennia.utils.utils import (lazy_property)
+
 from django.db import models
 
 # Create your models here.
@@ -22,6 +24,10 @@ class ItemPrototype(models.Model):
     db_tags = models.CharField(max_length=512)
 
 class Item(models.Model):
+    @lazy_property
+    def name(self):
+        return self.db_name
+
     db_name = models.CharField(max_length=64)
     db_item_prototype = models.ForeignKey(ItemPrototype)
     db_value = models.IntegerField()

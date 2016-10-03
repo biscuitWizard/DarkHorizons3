@@ -11,6 +11,7 @@ from world.models import StatusEffect
 from world.wordlevels import *
 import math, json, operator
 
+
 class StatHandler(object):
     """
     StatHandler manages all stats for objects. These could be Characters, Armies,
@@ -126,13 +127,12 @@ class StatHandler(object):
         new_level_secondary.save()
 
 
-"""
-ItemHandler handles items for objects with virtual inventories enabled.
-These inventories are backed with the SQL database.
-"""
 class ItemHandler(object):
     """
     Implements the handler. This sits on inventoried game objects.
+
+    ItemHandler handles items for objects with virtual inventories enabled.
+    These inventories are backed with the SQL database.
     """
     def __init__(self, obj):
         """
@@ -142,13 +142,12 @@ class ItemHandler(object):
         """
         self.parent = obj
 
-"""
-EquipmentHandler handles equipment for objects that are capable of equipping
-items.
-"""
+
 class EquipmentHandler(object):
     """
     Implements the handler. This sits on items capable of equipping items.
+
+    EquipmentHandler handles equipment for objects that are capable of equipping items.
     """
     def __init__(self, obj):
         """
@@ -179,6 +178,7 @@ class EquipmentHandler(object):
                                                      db_tags="Weapon_Type=Ranged;Weapon_Trait=Blaster",))]
         # return [Item(db_name="Fists", db_tags="Damage=2d6;Damage_Type=Soft")]
 
+
 class MoneyHandler(object):
     """
     Implements the handler. This object is responsible for dealing with the relationship
@@ -191,6 +191,7 @@ class MoneyHandler(object):
             obj: An internal reference to the object this handler is attached to.
         """
         self.parent = obj
+
 
 class FactoryHandler(object):
     """
@@ -205,6 +206,7 @@ class FactoryHandler(object):
             obj: An internal reference to the object this handler is attached to.
         """
         self.parent = obj
+
 
 class StatusHandler(object):
     """
@@ -236,13 +238,29 @@ class StatusHandler(object):
     def hurt(self, damage, hit_location):
         pass
 
-    def advance_statuses(self):
+    def advance_statuses(self, rounds=1):
         """
-        Advances status effects on this object by a round.
+        Advances status effects on this object by rounds.
         """
-        pass
+        if not hasattr(self.parent.db, 'status_effects'):
+            self.parent.db.status_effects = list()
+        for status_effect in self.parent.db.status_effects:
+            if status_effect.duration < 1:
+                continue
+            for i in xrange(rounds):
+                if status_effect.remaining < 1:
+                    continue
+                status_effect.remaining -= 1
+                status_effect.resolve_round()
 
-    def apply_status_effect(self, status_effect, duration):
+            if status_effect.remaining > 0:
+                continue
+
+            # Resolve the status effect.
+            status_effect.resolve_effect()
+            self.parent.db.status_effects.remove(status_effect)
+
+    def add_status(self, status_effect, value=0, duration=0):
         """
         Applies a status effect to an object.
         Args:
@@ -250,14 +268,18 @@ class StatusHandler(object):
             duration: The number of 'turns' or rounds that the effect will last.
 
         """
-        tokens = status_effect.split('=')
-        model = StatusEffect(tokens[0], tokens[1], duration)
+        model = StatusEffect(status_effect, value, duration)
 
         if not hasattr(self.parent.db, 'status_effects'):
             self.parent.db.status_effects = list()
-        # self.parent.db.status_effects.append(model)
-        self.parent.msg("Adding a new status effect to you."
-                        "\nName: {0}\nValue: {1}\nDuration: {2}".format(model.name, model.value, model.duration))
+
+        if any(x.name == status_effect for x in self.parent.db.status_effects):
+            # This status effect already exists on the player. Just overwrite.
+            model = next((x for x in self.parent.db.status_effects if x.name == status_effect), None)
+            model.value = value
+            model.duration = duration
+        else:
+            self.parent.db.status_effects.append(model)
 
     def get_combat_modifier(self):
         """

@@ -182,3 +182,24 @@ class Command(BaseCommand):
 #            else:
 #                self.character = None
 #
+
+
+class SetGender(Command):
+    """
+    Sets gender on yourself
+    Usage:
+      @gender male|female|neutral
+    """
+    key = "@gender"
+    alias = "@sex"
+    locks = "call:all()"
+
+    def func(self):
+        """
+        Implements the command.
+        """
+        caller = self.caller
+        arg = self.args.strip().lower()
+
+        caller.db.gender = arg
+        caller.msg("Your gender was set to %s." % arg)

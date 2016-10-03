@@ -171,13 +171,8 @@ class SkirmishScript(DefaultScript):
         """
         pass
 
-class EngagementScript(DefaultScript):
-    key = "engagement_script"
-    desc = "Used during an active fight between two characters"
-    start_delay = True
-    interval = 10
-    repeats = 1
 
+class EngagementScript(DefaultScript):
     attacker = None  # Who initiated the fight
     defender = None  # Who's the target
     location = None  # Where the fight is happening
@@ -185,6 +180,13 @@ class EngagementScript(DefaultScript):
 
     attacker_action = None  # Command object for the attack action.
     defender_action = None  # Command object for the defend action.
+
+    def at_script_creation(self):
+        self.key = "engagement_script"
+        self.desc = "Used during an active fight between two characters"
+        self.start_delay = True
+        self.interval = 10
+        self.repeats = 1
 
     def start_engagement(self, attacker, defender, location):
         self.attacker = attacker
@@ -208,7 +210,7 @@ class EngagementScript(DefaultScript):
         self.stop()
 
     def at_repeat(self):
-        "Called once after the initial wait delay."
+        """Called once after the initial wait delay."""
         self.defender.msg('[GAME] You waited too long. Boom! Combat over.')
         self.attacker.msg('[GAME] Your prey took too look to respond. Combat expired.')
 

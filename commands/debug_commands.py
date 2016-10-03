@@ -1,5 +1,6 @@
 from commands.command import Command
 
+
 class CmdAddItem(Command):
     key = "+item/add"
     locks = "cmd:all()"

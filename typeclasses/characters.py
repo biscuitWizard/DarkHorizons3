@@ -7,12 +7,28 @@ is setup to be the "default" character type created by the default
 creation commands.
 
 """
+import re
+
 from evennia import DefaultCharacter
 from gamedb.models import Item
 from world.models import ItemStack
 from world.system.handlers import (ItemHandler, StatHandler, EquipmentHandler,
                                    MoneyHandler, StatusHandler)
 from evennia.utils.utils import (lazy_property)
+
+_GENDER_PRONOUN_MAP = {"male": {"s": "he",
+                                "o": "him",
+                                "p": "his",
+                                "a": "his"},
+                       "female": {"s": "she",
+                                  "o": "her",
+                                  "p": "her",
+                                  "a": "hers"},
+                       "neutral": {"s": "it",
+                                   "o": "it",
+                                   "p": "its",
+                                   "a": "its"}}
+RE_GENDER_PRONOUN = re.compile(r'\[\^([sSoOpPaA])')
 
 class Character(DefaultCharacter):
     """
@@ -53,6 +69,31 @@ class Character(DefaultCharacter):
     @lazy_property
     def status(self):
         return StatusHandler(self)
+
+    @lazy_property
+    def gender(self):
+        return self.db.gender
+
+    def get_pronoun(self, regex_match):
+        """
+        Get pronoun from the pronoun marker in the text. This is used as
+        the callable for the re.sub function.
+        Args:
+            regex_match (MatchObject): the regular expression match.
+        Notes:
+            - `{s`, `{S`: Subjective form: he, she, it, He, She, It
+            - `{o`, `{O`: Objective form: him, her, it, Him, Her, It
+            - `{p`, `{P`: Possessive form: his, her, its, His, Her, Its
+            - `{a`, `{A`: Absolute Possessive form: his, hers, its, His, Hers, Its
+        """
+        typ = regex_match.group()[2]  # "s", "O" etc
+        if not hasattr(self.db, "gender") or not self.db.gender:
+            gender = "neutral"
+        else:
+            gender = self.gender
+        gender = gender if gender in ("male", "female", "neutral") else "neutral"
+        pronoun = _GENDER_PRONOUN_MAP[gender][typ.lower()]
+        return pronoun.capitalize() if typ.isupper() else pronoun
 
     # def add_item(self, item_name, quantity=1):
     #     try:

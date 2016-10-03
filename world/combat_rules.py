@@ -11,8 +11,14 @@ def start_combat(caller, target, action):
     engagement.start_engagement(caller, target, caller.location)
     engagement.attacker_action = action
 
-    engagement.location.msg_contents(
-        "{2} {0} pewpews at the poor {1}".format(engagement.attacker.name, engagement.defender.name, prefix))
+    # Prepare the combat message for the room.
+    combat_message = action.on_message_format(caller, target)
+    if combat_message:
+        engagement.location.msg_contents(combat_message, from_obj=caller)
+    combat_omessage = action.on_message_oformat(caller, target)
+    if(combat_omessage):
+        engagement.location.msg_contents(combat_omessage, from_obj=caller)
+
     engagement.defender.msg(
         "{1} {0} is shooting at you!!\n\t+pass - +dodge - +quickshot".format(engagement.attacker.name, prefix))
 
@@ -23,11 +29,9 @@ def resolve_combat(caller, action):
     engagement.defender_action = action
     engagement.pause()
 
-
     attacker_weapons = engagement.attacker.equipment.get_weapons()
     defender_skill = engagement.defender_action.skill
     attacker_skill = engagement.attacker_action.skill
-
 
     # Update the advantage for the defender and attacker.
     skirmish.adjust_advantage(engagement.attacker, engagement.attacker_action.get_fatigue() * -1)
