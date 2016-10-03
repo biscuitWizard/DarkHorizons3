@@ -4,6 +4,24 @@ from typeclasses.scripts import EngagementScript
 from gamedb.models import HitEffect
 from decimal import *
 
+from world.combat_messages import CombatMessageResolver
+
+
+class HitResult:
+    attacker = None       # The damage dealer.
+    defender = None       # The receiver of the damage/
+    damage = 0            # The damage applied by this hit result.
+    critical = False      # Whether or not this is a critical hit.
+    status_effect = None  # Whether or not a status effect will be applied by this hit.
+    hit_location = None   # The location this hit result is targeting.
+    disrupted = False     # Being disrupted means the damage for this attack can be ignored.
+
+    def __init__(self, attacker, defender, damage=0, hit_location="body"):
+        self.attacker = attacker
+        self.defender = defender
+        self.damage = damage
+        self.hit_location = hit_location
+
 
 def start_combat(caller, target, action):
     prefix = "|r[|yCOMBAT|r]|n"
@@ -33,32 +51,38 @@ def resolve_combat(caller, action):
     defender_skill = engagement.defender_action.skill
     attacker_skill = engagement.attacker_action.skill
 
+    hit_results = {
+        HitResult(engagement.attacker, engagement.defender, 5)
+    }
+    message_resolver = CombatMessageResolver(engagement.attacker, engagement.defender, engagement.attacker_action,
+                                             engagement.defender_action, hit_results)
+
+    engagement.location.msg_contents(message_resolver.parse(), from_obj=engagement.attacker)
+
     # Update the advantage for the defender and attacker.
-    skirmish.adjust_advantage(engagement.attacker, engagement.attacker_action.get_fatigue() * -1)
-    skirmish.adjust_advantage(engagement.defender, engagement.defender_action.get_fatigue() * -1)
+    #skirmish.adjust_advantage(engagement.attacker, engagement.attacker_action.get_fatigue() * -1)
+    #skirmish.adjust_advantage(engagement.defender, engagement.defender_action.get_fatigue() * -1)
 
-    total_hits = 0
-    damage_list = list()
-    critical = None
+    #total_hits = 0
+    #damage_list = list()
+    #critical = None
 
-    action.on_before_attack_resolution(engagement)
+    #action.on_before_attack_resolution(engagement)
 
-    for weapon in attacker_weapons:
+    #for weapon in attacker_weapons:
         # On before attack hook for combat API.
-        if not action.on_before_attack(engagement, weapon):
-            continue
+    #    if not action.on_before_attack(engagement, weapon):
+    #        continue
 
-        resolve_weapon_attack(engagement.attacker, engagement.defender, weapon, attacker_skill, defender_skill)
+    #    resolve_weapon_attack(engagement.attacker, engagement.defender, weapon, attacker_skill, defender_skill)
 
-    action.on_after_attack_resolution(engagement, total_hits, damage_list)
+    # action.on_after_attack_resolution(engagement, total_hits, damage_list)
 
     #  if total_hits > 0 and critical_momentum > 0 and sum(damage_list) - defender_toughness > 0:
     #      critical = resolve_status_effect(engagement.defender, critical[0], critical[1], critical[2])
 
-    outcome = action.on_message_format(engagement.attacker, engagement.defender,
-                                       attacker_weapon = attacker_weapons)
-    if not outcome:
-        outcome = display_outcome(engagement, total_hits, damage_list, critical)
+
+
     engagement.clean_engagement()
 
 def resolve_intermediary_action(caller, action):

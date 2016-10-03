@@ -291,7 +291,7 @@ class StatusHandler(object):
 
     def get_combat_modifier(self):
         """
-        Totals up the list of combat modifiers for the object.
+        Totals up the list of combat modifiers fo the object.
         Returns:
             An integer representing the sum of all modifiers.
         """

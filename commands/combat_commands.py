@@ -48,11 +48,11 @@ class CombatCommand(Command):
             String with the value of the message. If None or 'pass',
             the system ignore the output of this function.
         """
-        return "[COMBAT] You {0} at {1} with your {2}!".format(self.verb, defender.name, self.weapons[0].name)
+        return "|r[|yCOMBAT|r]|n You {0} at {1} with your {2}!".format(self.verb, defender.name, self.weapons[0].name)
 
     def on_message_oformat(self, attacker, defender):
         # Default message: Attacker shoots at Xeebo with his/her Firefly Pistol!
-        return "[COMBAT] {0} {1}s at {2} with [^p {3}!".format(attacker.name, self.verb, defender.name,
+        return "|r[|yCOMBAT|r]|n {0} {1}s at {2} with [^p {3}!".format(attacker.name, self.verb, defender.name,
                                                                self.weapons[0].name)
 
 
