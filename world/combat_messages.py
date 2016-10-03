@@ -22,9 +22,10 @@ _COMBAT_RESOLVE_MAP = {
             "failure": "[^attacker [^a_verbs at [^defender with [^p [^a_wep and hits."
         },
         "quickshot": {
-            "success": "Success Message",
-            "failure": "Failure Message",
-            "disrupt": "Disrupt Message"
+            "success": "[^defender [^a_verbs at [^attacker disrupting [^attacker's attack, but missing them.",
+            "failure": "[^defender raises their [^d_wep to fire, but [^attacker's attack hits them.",
+            "disrupt": "[^defender [^a_verbs at [^attacker with their [^d_wep, "
+                       "hitting [^attacker and disrupting their attack."
         },
         "force_deflect": {
             "success": "Success Message",
@@ -54,9 +55,9 @@ class CombatMessageResolver:
         else:
             result_success = "failure"
 
-        combat_local_map = _COMBAT_RESOLVE_MAP[self.attack_action.verb]
+        combat_local_map = _COMBAT_RESOLVE_MAP[self.attack_action.key.strip('+')]
         if hasattr(combat_local_map, self.defend_action.verb):
-            combat_local_map = combat_local_map[self.defend_action.verb]
+            combat_local_map = combat_local_map[self.defend_action.key.strip('+')]
         else:
             combat_local_map = combat_local_map["default"]
 

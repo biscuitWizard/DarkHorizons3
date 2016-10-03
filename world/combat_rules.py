@@ -2,9 +2,15 @@ from world import rules
 from evennia import create_script
 from typeclasses.scripts import EngagementScript
 from gamedb.models import HitEffect
-from decimal import *
 
 from world.combat_messages import CombatMessageResolver
+
+#def get_attack_responses(attacker, defender, attack_action):
+#    valid_responses = []
+#    for response_command in _RESPONSE_COMMANDS:
+#        if response_command.is_valid_response(attacker, defender, attack_action):
+#            valid_responses.append(response_command.key)
+#    return valid_responses
 
 
 class HitResult:
@@ -23,7 +29,7 @@ class HitResult:
         self.hit_location = hit_location
 
 
-def start_combat(caller, target, action):
+def start_combat(caller, target, action, valid_responses=[]):
     prefix = "|r[|yCOMBAT|r]|n"
     engagement = create_script(EngagementScript, obj=caller)
     engagement.start_engagement(caller, target, caller.location)
@@ -34,11 +40,12 @@ def start_combat(caller, target, action):
     if combat_message:
         engagement.location.msg_contents(combat_message, from_obj=caller)
     combat_omessage = action.on_message_oformat(caller, target)
-    if(combat_omessage):
+    if combat_omessage:
         engagement.location.msg_contents(combat_omessage, from_obj=caller)
 
-    engagement.defender.msg(
-        "{1} {0} is shooting at you!!\n\t+pass - +dodge - +quickshot".format(engagement.attacker.name, prefix))
+    responses_stringified = " - ".join([response.key for response in valid_responses])
+    if responses_stringified:
+        engagement.defender.msg(responses_stringified)
 
 
 def resolve_combat(caller, action):

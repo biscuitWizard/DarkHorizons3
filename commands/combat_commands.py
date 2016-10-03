@@ -1,6 +1,21 @@
 from commands.command import Command
 from world import combat_rules
 
+_COMMAND_RESPONSES = []
+
+
+def register_response(command):
+    _COMMAND_RESPONSES.append(command)
+
+
+def get_valid_responses(attacker, defender, attack_action):
+    valid_responses = []
+
+    for response_command in _COMMAND_RESPONSES:
+        if response_command.is_valid_response(attacker, defender, attack_action):
+            valid_responses.append(response_command)
+    return valid_responses
+
 
 class CombatCommand(Command):
     skill = ""
@@ -56,6 +71,15 @@ class CombatCommand(Command):
                                                                self.weapons[0].name)
 
 
+class ResponseCombatCommand(CombatCommand):
+    @staticmethod
+    def is_valid_response(attacker, defender, attack_action):
+        return True
+
+    def __init__(self):
+        register_response(self)
+
+
 class CmdShoot(CombatCommand):
     key = "+shoot"
     skill = "Blaster"
@@ -72,8 +96,7 @@ class CmdShoot(CombatCommand):
             return
 
         target = self.caller.search(self.args)
-        combat_rules.start_combat(self.caller, target, self)
-
+        combat_rules.start_combat(self.caller, target, self, get_valid_responses(self.caller, target, self))
 
 class CmdStrike(CombatCommand):
     key = "+strike"
@@ -90,6 +113,9 @@ class CmdStrike(CombatCommand):
             self.caller.msg(cmd_check)
             return
 
+        target = self.caller.search(self.args)
+        combat_rules.start_combat(self.caller, target, self, get_valid_responses(self.caller, target, self))
+
 
 class CmdThrow(CombatCommand):
     key = "+throw"
@@ -105,6 +131,9 @@ class CmdThrow(CombatCommand):
         if cmd_check:
             self.caller.msg(cmd_check)
             return
+
+        target = self.caller.search(self.args)
+        combat_rules.start_combat(self.caller, target, self, get_valid_responses(self.caller, target, self))
 
 
 class CmdInject(CombatCommand):
@@ -132,7 +161,7 @@ class CmdAbort(CombatCommand):
         engagement.clean_engagement()
 
 
-class CmdPass(CombatCommand):
+class CmdPass(ResponseCombatCommand):
     key = "+pass"
     fatigue = -5
     bypass_advantage = True
@@ -147,7 +176,7 @@ class CmdPass(CombatCommand):
         combat_rules.resolve_combat(self.caller, self)
 
 
-class CmdDodge(CombatCommand):
+class CmdDodge(ResponseCombatCommand):
     key = "+dodge"
     skill = "Dodge"
     fatigue = 5
@@ -168,7 +197,7 @@ class CmdDodge(CombatCommand):
         return 5
 
 
-class CmdParry(CombatCommand):
+class CmdParry(ResponseCombatCommand):
     key = "+parry"
     skill = "Melee"
     fatigue = 5
@@ -184,7 +213,7 @@ class CmdParry(CombatCommand):
         combat_rules.resolve_combat(self.caller, self)
 
 
-class CmdQuickshot(CombatCommand):
+class CmdQuickshot(ResponseCombatCommand):
     key = "+quickshot"
     skill = "Quickdraw"
     fatigue = 10
@@ -238,7 +267,7 @@ class CmdQuickshot(CombatCommand):
         return result
 
 
-class CmdRiposte(CombatCommand):
+class CmdRiposte(ResponseCombatCommand):
     key = "+riposte"
     skill = "Melee"
     fatigue = 10
@@ -255,7 +284,7 @@ class CmdRiposte(CombatCommand):
         combat_rules.resolve_combat(self.caller, self)
 
 
-class CmdBlock(CombatCommand):
+class CmdBlock(ResponseCombatCommand):
     key = "+block"
     skill = "Brawl"  # Melee is wielding melee weapon.
     fatigue = 5
@@ -275,7 +304,7 @@ class CmdBlock(CombatCommand):
         return "Melee"
 
 
-class CmdCounter(CombatCommand):
+class CmdCounter(ResponseCombatCommand):
     key = "+counter"
     skill = ""
     fatigue = 10
@@ -324,4 +353,3 @@ class CmdCover(CombatCommand):
     def func(self):
         self.weapons = self.caller.equipment.get_weapons()
         pass
-
