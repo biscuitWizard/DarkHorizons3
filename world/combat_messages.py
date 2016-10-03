@@ -32,6 +32,18 @@ _COMBAT_RESOLVE_MAP = {
             "failure": "Failure Message",
             "disrupt": "Disrupt Message"
         }
+    },
+    "throw": {
+        "default": {
+            "success": "Success Message",
+            "failure": "Failure Message"
+        }
+    },
+    "inject": {
+        "default": {
+            "success": "Success Message",
+            "failure": "Failure Message"
+        }
     }
 }
 
