@@ -75,7 +75,7 @@ class CombatMessageResolver:
 
         if not hasattr(combat_local_map, result_success):
             result_success = "failure"
-            
+
         message = _RE_COMBAT_TOKENS.sub(self._get_combat_token, combat_local_map[result_success])
         return "|r[|yCOMBAT|r]|n {}".format(message)
 

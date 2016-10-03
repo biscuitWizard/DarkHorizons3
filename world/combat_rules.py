@@ -51,59 +51,28 @@ def resolve_combat(caller, action):
     defender_skill = engagement.defender_action.skill
     attacker_skill = engagement.attacker_action.skill
 
+    # Resolve the next round of status effects.
+    engagement.attacker.status.advance_statuses()
+    engagement.defender.status.advance_statuses()
+
+    # Proceed to calculate combat hit resolution for this round.
     hit_results = {
         HitResult(engagement.attacker, engagement.defender, 5)
     }
+
+    # Prepare the message results.
     message_resolver = CombatMessageResolver(engagement.attacker, engagement.defender, engagement.attacker_action,
                                              engagement.defender_action, hit_results)
 
+    # Message all the characters in the room the results of the combat.
     engagement.location.msg_contents(message_resolver.parse(), from_obj=engagement.attacker)
 
     # Update the advantage for the defender and attacker.
-    #skirmish.adjust_advantage(engagement.attacker, engagement.attacker_action.get_fatigue() * -1)
-    #skirmish.adjust_advantage(engagement.defender, engagement.defender_action.get_fatigue() * -1)
+    skirmish.adjust_advantage(engagement.attacker, engagement.attacker_action.get_fatigue() * -1)
+    skirmish.adjust_advantage(engagement.defender, engagement.defender_action.get_fatigue() * -1)
 
-    #total_hits = 0
-    #damage_list = list()
-    #critical = None
-
-    #action.on_before_attack_resolution(engagement)
-
-    #for weapon in attacker_weapons:
-        # On before attack hook for combat API.
-    #    if not action.on_before_attack(engagement, weapon):
-    #        continue
-
-    #    resolve_weapon_attack(engagement.attacker, engagement.defender, weapon, attacker_skill, defender_skill)
-
-    # action.on_after_attack_resolution(engagement, total_hits, damage_list)
-
-    #  if total_hits > 0 and critical_momentum > 0 and sum(damage_list) - defender_toughness > 0:
-    #      critical = resolve_status_effect(engagement.defender, critical[0], critical[1], critical[2])
-
-
-
+    # Clean up the engagement and wrap up the combat round.
     engagement.clean_engagement()
-
-def resolve_intermediary_action(caller, action):
-    """
-    Method used for actions that can be taken in or out of combat. When used in combat,
-    they subtract an amount of advantage for their use, but they don't actually
-    trigger an attack resolution.
-    Args:
-        caller: The player triggering this effect.
-        action: The action they are performing.
-    """
-    location = caller.location
-    # Guard statement in case there's no skirmish here.
-    if not hasattr(location.db, 'skirmish') or not location.db.skirmish:
-        return
-
-    skirmish = location.db.skirmish
-    if not skirmish.is_combatant(caller):
-        skirmish.add_combatant(caller)
-
-    skirmish.adjust_advantage(caller, action.fatigue * -1)
 
 
 def resolve_weapon_attack(attacker, defender, weapon, attack_skill, defense_skill):
@@ -147,11 +116,11 @@ def resolve_weapon_attack(attacker, defender, weapon, attack_skill, defense_skil
 
         # First glancing hits populate the critical field.
         # If this later becomes a critical hit, that's fine.
-        #if damage - defender_toughness > 0 and critical is None:
+        # if damage - defender_toughness > 0 and critical is None:
         #    critical = (hit_location, weapon.get_tag("Damage_Type"), True)
 
         # Glancing hits always have a chance to turn into critical hits.
-        #if damage > defender_toughness and (critical is None or critical[2] == True):
+        # if damage > defender_toughness and (critical is None or critical[2] == True):
         #    critical = (hit_location, weapon.get_tag("Damage_Type"), False)
     elif hit_roll == 0:  # Miss
         engagement.attacker_action.on_attack_miss(attacker, defender, weapon)
@@ -159,6 +128,7 @@ def resolve_weapon_attack(attacker, defender, weapon, attack_skill, defense_skil
     elif hit_roll == -1:  # Lucky Miss
         engagement.attacker_action.on_advantage_miss(attacker, defender, weapon)
         engagement.defender_action.on_advantage_miss(attacker, defender, weapon)
+
 
 def roll_to_hit(skirmish, attacker, defender, attacker_skill, defender_skill):
     """
