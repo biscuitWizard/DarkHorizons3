@@ -54,7 +54,17 @@ class StatHandler(object):
         """
         max_level = CharacterLevel.objects.filter(db_character_id=self.parent.id).aggregate(Max('db_level_taken'))
 
-        return max_level if max_level else 0
+        return max_level['db_level_taken__max'] if max_level else 0
+
+    def get_experience(self):
+        """
+        Gets the statted object's available experience.
+        Returns:
+            Integer value representing available experience to spend.
+        """
+        if not hasattr(self.parent.db, 'experience') or self.parent.db.experience is None:
+            return 0
+        return self.parent.db.experience
 
     def get_race(self):
         """
@@ -69,10 +79,19 @@ class StatHandler(object):
 
     def get_traits(self, with_racial=True):
         levels = CharacterLevel.objects.filter(db_character_id=self.parent.id)
-        class_traits = ClassTrait.objects.filter(db_class_id__in=[x.db_class_id for x in levels.all()]).order_by()\
+        traits_list = ClassTrait.objects.filter(db_class_id__in=[x.db_class_id for x in levels.all()]).order_by()\
             .values_list('db_trait_id', flat=True).distinct()
-        print class_traits
-        return Trait.objects.filter(id__in=class_traits).values_list('db_name', flat=True)
+
+        # If With Racial is added, also add racial traits into this list.
+        if with_racial and hasattr(self.parent.db, 'race_id') and self.parent.db.race_id is not None:
+            race_id = self.parent.db.race_id
+            race_traits = RaceTrait.objects.filter(db_race_id=race_id).values_list('db_trait_id', flat=True).distinct()
+            for race_trait in race_traits:
+                if race_trait in traits_list:
+                    continue
+                traits_list.append(race_trait)
+
+        return Trait.objects.filter(id__in=traits_list).values_list('db_name', flat=True)
 
     def get_trait(self, trait_key, with_racial=True, with_status_effects=True):
         """
@@ -172,13 +191,33 @@ class EquipmentHandler(object):
         """
         self.parent = obj
 
-    def get_armor(self):
+    def get_armor(self, location="body"):
         """
         Definition to retrieve an object's current armor value.
+        Args:
+            location: To which location an armor value is desired. Defaults to Body.
         Returns:
             Integer value for Armor
         """
         return 2
+
+    def get_armor_name(self, location="body"):
+        """
+        Definition to retrieve the name for a piece of armor at a body location.
+        Args:
+            location: To which location an armor piece name is desired. Defaults to body.
+
+        Returns:
+            String name of the armor piece.
+        """
+        if location == "body":
+            return "Test Chest Plate"
+        if location == "arms":
+            return "Test Pauldrons"
+        if location == "legs":
+            return "Test Grieves"
+        if location == "head":
+            return None
 
     def get_weapons(self):
         """

@@ -19,17 +19,29 @@ class CmdStats(Command):
     key = "+stats"
 
     def func(self):
+        stats = self.caller.stats
+        equipment = self.caller.equipment
+
+        body_armor = equipment.get_armor_name('body')
+        body_armor = body_armor if body_armor else "Nothing"
+        arm_armor = equipment.get_armor_name('arms')
+        arm_armor = arm_armor if arm_armor else "Nothing"
+        leg_armor = equipment.get_armor_name('legs')
+        leg_armor = leg_armor if leg_armor else "Nothing"
+        head_armor = equipment.get_armor_name('head')
+        head_armor = head_armor if head_armor else "Nothing"
+
         stat_screen = Text.center(" +STATS: {0} ".format(self.caller.name), 78, '=', '|y', '|r')
-        stat_screen += "\n {0}{1} {2}{3}".format(Text.left("Race:", 15, color='|y'), Text.left("Rodian", 19),
-                                                 Text.left("Weapon", 8, color='|y'), Text.left("Bare Hands", 19))
-        stat_screen += "\n {0}{1} {2}{3}".format(Text.left("Level:", 15, color='|y'), Text.left("0", 19),
-                                                 Text.left("Armor:", 8, color='|y'), Text.left("Nothing", 19))
-        stat_screen += "\n {0}{1} {2}{3}".format(Text.left("Experience:", 15, color='|y'), Text.left("0", 19),
-                                                 Text.left("Helmet:", 8, color='|y'), Text.left("Nothing", 19))
+        stat_screen += "\n {0}{1} {2}{3}".format(Text.left("Race:", 15, color='|y'), Text.left(stats.get_race(), 19),
+                                                 Text.left("Weapon", 8, color='|y'), Text.left(equipment.get_weapons()[0].name, 19))
+        stat_screen += "\n {0}{1} {2}{3}".format(Text.left("Level:", 15, color='|y'), Text.left(str(stats.get_level()), 19),
+                                                 Text.left("Armor:", 8, color='|y'), Text.left(body_armor, 19))
+        stat_screen += "\n {0}{1} {2}{3}".format(Text.left("Experience:", 15, color='|y'), Text.left(str(stats.get_experience()), 19),
+                                                 Text.left("Helmet:", 8, color='|y'), Text.left(head_armor, 19))
         stat_screen += "\n {0}{1} {2}{3}".format(Text.left("Condition:", 15, color='|y'), Text.left("Excellent", 19),
-                                                 Text.left("Arms:", 8, color='|y'), Text.left("Nothing", 19))
+                                                 Text.left("Arms:", 8, color='|y'), Text.left(arm_armor, 19))
         stat_screen += "\n {0}{1} {2}{3}".format(Text.left("Escapes Left:", 15, color='|y'), Text.left("0", 19),
-                                                 Text.left("Legs:", 8, color='|y'), Text.left("Nothing", 19))
+                                                 Text.left("Legs:", 8, color='|y'), Text.left(leg_armor, 19))
 
         stat_screen += "\n" + Text.center(" Character Traits ", 78, '-', '|y', '|r')
 
@@ -78,5 +90,16 @@ class Text:
             return text
 
     @staticmethod
-    def right(text, width, fill=' '):
-        pass
+    def right(text, width, fill=' ', color=None):
+        fill_len = width - len(text)
+
+        if len(text) < width:
+            if color:
+                text = color + text + "|n"
+            return (fill * fill_len) + text
+        else:
+            text = text[(len(text) - width):]
+            if color:
+                text = color + text + "|n"
+            return text
+
