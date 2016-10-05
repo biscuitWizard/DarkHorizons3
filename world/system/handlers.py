@@ -67,6 +67,13 @@ class StatHandler(object):
 
         return Race.objects.get(id=self.parent.db.race_id).db_name
 
+    def get_traits(self, with_racial=True):
+        levels = CharacterLevel.objects.filter(db_character_id=self.parent.id)
+        class_traits = ClassTrait.objects.filter(db_class_id__in=[x.db_class_id for x in levels.all()]).order_by()\
+            .values_list('db_trait_id', flat=True).distinct()
+        print class_traits
+        return Trait.objects.filter(id__in=class_traits).values_list('db_name', flat=True)
+
     def get_trait(self, trait_key, with_racial=True, with_status_effects=True):
         """
         Gets the value of a stat/trait on this object.
@@ -101,9 +108,9 @@ class StatHandler(object):
         trait_value = math.ceil(trait_value)
 
         # Calculate the trait modifiers for status_effects.
-        if with_status_effects and hasattr(self.parent.db, "status_effects"):
-            for status_effect in self.parent.db.status_effects:
-                trait_value += status_effect.calc_trait_modifier(trait_key)
+        #if with_status_effects and hasattr(self.parent.db, "status_effects") and not self.parent.db.status_effects:
+        #    for status_effect in self.parent.db.status_effects:
+        #        trait_value += status_effect.calc_trait_modifier(trait_key)
 
         return trait_value
 

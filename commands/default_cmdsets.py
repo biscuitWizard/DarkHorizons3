@@ -16,6 +16,7 @@ own cmdsets by inheriting from them or directly from `evennia.CmdSet`.
 
 from evennia import default_cmds
 from commands import debug_commands
+from commands import global_commands
 from commands import combat_commands
 from commands import command
 
@@ -49,6 +50,7 @@ class CharacterCmdSet(default_cmds.CharacterCmdSet):
         self.add(combat_commands.CmdRiposte())
         self.add(combat_commands.CmdStrike())
         self.add(combat_commands.CmdThrow())
+        self.add(global_commands.CmdStats())
 
 
 

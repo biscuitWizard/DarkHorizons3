@@ -14,6 +14,7 @@ class HitResult:
     status_effect = None  # Whether or not a status effect will be applied by this hit.
     hit_location = None   # The location this hit result is targeting.
     disrupted = False     # Being disrupted means the damage for this attack can be ignored.
+    fate_miss = False
 
     def __init__(self, attacker, defender, damage=0, hit_location="body"):
         self.attacker = attacker
@@ -47,18 +48,46 @@ def resolve_combat(caller, action):
     engagement.defender_action = action
     engagement.pause()
 
+    attacker = engagement.attacker
+    defender = engagement.defender
     attacker_weapons = engagement.attacker.equipment.get_weapons()
     defender_skill = engagement.defender_action.skill
     attacker_skill = engagement.attacker_action.skill
 
+    # Update the advantage for the defender and attacker.
+    skirmish.adjust_advantage(attacker, engagement.attacker_action.get_fatigue() * -1)
+    skirmish.adjust_advantage(defender, engagement.defender_action.get_fatigue() * -1)
+
     # Resolve the next round of status effects.
-    engagement.attacker.status.advance_statuses()
-    engagement.defender.status.advance_statuses()
+    attacker.status.advance_statuses()
+    defender.status.advance_statuses()
 
     # Proceed to calculate combat hit resolution for this round.
-    hit_results = {
-        HitResult(engagement.attacker, engagement.defender, 5)
-    }
+    # hit_results = {
+    #     HitResult(engagement.attacker, engagement.defender, 5)
+    # }
+    hit_results = []
+
+    for weapon in attacker_weapons:
+        # First step is to see if we can hit them.
+        hit_roll = roll_to_hit(skirmish, attacker, defender, attack_skill, defense_skill)
+        if hit_roll == 1:  # Hit
+            defender_fate = skirmish.get_advantage(defender)
+            fate_roll = rules.dice_roll(1, 100)
+            hit_result = HitResult(attacker, defender, 0)
+
+            if defender_fate >= fate_roll:  # Lucky Dodge
+                hit_result.fate_miss = True
+            elif defender_fate < (fate_roll - 40):  # Critical Hit
+                damage = 10
+                hit_result.damage = damage
+                hit_result.critical = True
+            else:  # Regular Hit
+                damage = 5
+                hit_result.damage = damage
+
+            hit_results.append(hit_result)
+
 
     # Prepare the message results.
     message_resolver = CombatMessageResolver(engagement.attacker, engagement.defender, engagement.attacker_action,
@@ -69,10 +98,6 @@ def resolve_combat(caller, action):
 
     # Apply the damage.
     do_damage(hit_results)
-
-    # Update the advantage for the defender and attacker.
-    skirmish.adjust_advantage(engagement.attacker, engagement.attacker_action.get_fatigue() * -1)
-    skirmish.adjust_advantage(engagement.defender, engagement.defender_action.get_fatigue() * -1)
 
     # Clean up the engagement and wrap up the combat round.
     engagement.clean_engagement()
@@ -85,6 +110,11 @@ def do_damage(hit_results):
 
         hit_result.defender.hurt(hit_result.damage, hit_result.hit_location)
 
+def resolve_attack(attacker, defender):
+    pass
+
+def resolve_counter_attack(attacker, defender):
+    pass
 
 def resolve_weapon_attack(attacker, defender, weapon, attack_skill, defense_skill):
     """

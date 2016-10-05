@@ -23,6 +23,7 @@ class CombatCommand(Command):
     cooldown = 0
     weapons = []  # The command executor's weapon.
     verb = "ASSIGNVERB"
+    is_disruptive = False
 
     attacker_hit_status = None  # Whether the attacker has been hit, missed, or lucky missed
     defender_hit_status = None  # Whether the defender has been hit, missed, or lucky missed
@@ -201,6 +202,7 @@ class CmdParry(ResponseCombatCommand):
     key = "+parry"
     skill = "Melee"
     fatigue = 5
+    is_disruptive = True
 
     def func(self):
         self.weapons = self.caller.equipment.get_weapons()
@@ -218,6 +220,7 @@ class CmdQuickshot(ResponseCombatCommand):
     skill = "Quickdraw"
     fatigue = 10
     cooldown = 2
+    is_disruptive = True
 
     def func(self):
         self.weapons = self.caller.equipment.get_weapons()
@@ -272,6 +275,7 @@ class CmdRiposte(ResponseCombatCommand):
     skill = "Melee"
     fatigue = 10
     cooldown = 2
+    is_disruptive = True
 
     def func(self):
         self.weapons = self.caller.equipment.get_weapons()
@@ -309,6 +313,7 @@ class CmdCounter(ResponseCombatCommand):
     skill = ""
     fatigue = 10
     cooldown = 2
+    is_disruptive = True
 
     def func(self):
         self.weapons = self.caller.equipment.get_weapons()
